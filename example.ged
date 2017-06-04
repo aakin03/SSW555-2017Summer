@@ -1,0 +1,132 @@
+0 HEAD
+0 NOTE Name: Ayse Akin
+1 SOUR Family Echo
+2 WWW http://www.familyecho.com/
+1 FILE My Family
+1 DATE 23 MAY 2017
+1 DEST ANSTFILE
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 SUBM @I1@
+2 NAME Ayse
+1 SUBN
+1 CHAR UTF-8
+0 @I1@ INDI
+1 NAME Hayley /Dunfee/
+2 GIVN Hayley
+2 SURN Dunfee
+2 _MARNM Dunfee
+1 SEX F
+1 BIRT
+2 DATE 10 DEC 1993
+1 FAMC @F1@
+0 @I2@ INDI
+1 NAME Phil /Dunfee/
+2 GIVN Phil
+2 SURN Dunfee
+2 _MARNM Dunfee
+1 SEX M
+1 BIRT
+2 DATE 5 MAY 1972
+1 FAMS @F1@
+0 @I3@ INDI
+1 NAME Claire /Pritch/
+2 GIVN Claire
+2 SURN Pritch
+2 _MARNM Dunfee
+1 SEX F
+1 BIRT
+2 DATE 15 JUL 1973
+1 FAMS @F1@
+1 FAMC @F2@
+0 @I4@ INDI
+1 NAME Alex /Dunfee/
+2 GIVN Alex
+2 SURN Dunfee
+2 _MARNM Dunfee
+1 SEX F
+1 BIRT
+2 DATE 10 OCT 1995
+1 FAMC @F1@
+0 @I5@ INDI
+1 NAME Luke /Dunfee/
+2 GIVN Luke
+2 SURN Dunfee
+2 _MARNM Dunfee
+1 SEX M
+1 BIRT
+2 DATE 19 JAN 1998
+1 FAMC @F1@
+0 @I6@ INDI
+1 NAME Jay /Pritch/
+2 GIVN Jay
+2 SURN Pritch
+2 _MARNM Pritch
+1 SEX M
+1 BIRT
+2 DATE 17 JUN 1945
+1 FAMS @F2@
+1 FAMS @F3@
+0 @I7@ INDI
+1 NAME Delia /Williams/
+2 GIVN Delia
+2 SURN Williams
+2 _MARNM Williams
+1 SEX F
+1 BIRT
+2 DATE 31 JUL 1950
+1 DEAT Y
+2 DATE 6 SEP 2000
+1 FAMS @F2@
+0 @I8@ INDI
+1 NAME Gloria /Ramirez/
+2 GIVN Gloria
+2 SURN Ramirez
+2 _MARNM Pritch
+1 SEX F
+1 BIRT
+2 DATE 15 NOV 1970
+1 FAMS @F3@
+1 FAMS @F4@
+0 @I9@ INDI
+1 NAME Manny /Delgado/
+2 GIVN Manny
+2 SURN Delgado
+2 _MARNM Pritch
+1 SEX M
+1 BIRT
+2 DATE 13 MAY 1998
+1 FAMC @F4@
+0 @I10@ INDI
+1 NAME Joe /Pritch/
+2 GIVN Joe
+2 SURN Pritch
+2 _MARNM Pritch
+1 SEX M
+1 BIRT
+2 DATE 30 AUG 2008
+1 FAMC @F3@
+0 @F1@ FAM
+1 HUSB @I2@
+1 WIFE @I3@
+1 CHIL @I1@
+1 CHIL @I4@
+1 CHIL @I5@
+1 _CURRENT Y
+0 @F2@ FAM
+1 HUSB @I6@
+1 WIFE @I7@
+1 CHIL @I3@
+1 _CURRENT N
+0 @F3@ FAM
+1 HUSB @I6@
+1 WIFE @I8@
+1 CHIL @I10@
+1 MARR
+2 DATE 25 JUN 2001
+1 _CURRENT Y
+0 @F4@ FAM
+1 WIFE @I8@
+1 CHIL @I9@
+0 TRLR
