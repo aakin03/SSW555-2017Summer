@@ -30,14 +30,19 @@ current = None
 date_for = None
 
 # helper function to save buffer into collection
+# identifies what type of object is in "current"
+# then saves it into the corresponding dictionary
 def persist(buffer):
     if current.get("INDI"):
+        # create a tuple that is used to check for uniqueness
         name_birthday = (current.get("NAME", ""), current.get("BIRT"))
         if name_birthday in NAME_AND_BIRTHDAY:
             print("Error: Individual", name_birthday, "already exists!")
             sys.exit(1)
         else:
+            # add user into the collection
             INDI[current.get("INDI")] = current
+            # update the list with the buffer
             NAME_AND_BIRTHDAY.append(name_birthday)
     elif current.get("FAM"):
         FAM[current.get("FAM")] = current
