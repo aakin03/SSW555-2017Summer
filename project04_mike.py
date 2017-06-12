@@ -80,9 +80,6 @@ for line in f:
         tag = parsed[1].upper()
         arguments = " ".join(parsed[2:])
 
-    # deprecated information
-    # level = parsed[0]
-    # valid = "Y" if TAGS.get(tag) is level else "N"
 
     # add info to dict
     if current:
