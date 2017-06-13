@@ -82,6 +82,21 @@ def get_spouse(ident):
         spouses.append(husb if husb != ident else wife)
     return spouses
 
+def marriagable(ident):
+    # able to wed - get dob & wedding date
+    try:
+        birthday = INDI.get(ident, {}).get("BIRT")
+        marriages = INDI.get(ident, {}).get("FAMS", [])
+        birthday = datetime.strptime(birthday, "%d %b %Y")
+        for marriage in marriages:
+            wedding_date = FAM.get(marriage, {}).get("MARR")
+            wedding_date = datetime.strptime(wedding_date, "%d %b %Y")
+            if ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 14): print(INDI.get(ident, {}).get("BIRT") + " was illegally married.")
+        return 0
+    except:
+        return 0
+    #
+# 
 
 try:
     f = open("example.ged")
@@ -143,7 +158,8 @@ f.close()
 if current:
     persist(current)
 
-
+if current:
+    marriagable(current)
 
 
 
@@ -200,6 +216,7 @@ class TestUS23(unittest.TestCase):
         example = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
         res = persist(example)
         self.assertEqual(res, None, msg="Incorrect return type")
+    
 
 
 # run automated tests using unittest

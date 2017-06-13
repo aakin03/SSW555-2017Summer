@@ -133,6 +133,7 @@ id_table = PrettyTable()
 id_table.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive",
                         "Death", "Child", "Spouse"]
 for key, person in INDI.items():
+    if(person.get
     id_table.add_row([key, person.get("NAME"), person.get("SEX"),
      person.get("BIRT"), calc_age(person.get("BIRT")), (person.get("DEAT") == None), person.get("DEAT", "NA"),
      get_children(key), get_spouse(key)])
