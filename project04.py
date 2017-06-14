@@ -104,8 +104,10 @@ def marriagable(ident):
         return 0
     except:
         return 0
-    #
-# 
+
+def dupID(ident, name):
+    # another individual added with same ID as another individual already recorded
+    raise ValueError (name + " has the same ID as " + lookup_name(ident))
 
 try:
     f = open("example.ged")
@@ -129,7 +131,10 @@ for line in f:
 
         # persist buffer information to collections
         if current:
-            persist(current)
+            if current.get("INDI") in INDI:
+                dup(current.get("INDI"), current.get("NAME"))
+            else:
+                persist(current)
 
         # now initalize the new record
         if tag == "INDI":
