@@ -34,7 +34,7 @@ date_for = None
 # helper function to save buffer into collection
 # identifies what type of object is in "current"
 # then saves it into the corresponding dictionary
-def persist(buffer):
+def persist(current):
     if current.get("INDI"):
         # create a tuple that is used to check for uniqueness
         name_birthday = (current.get("NAME", ""), current.get("BIRT"))
@@ -72,7 +72,6 @@ def get_children(ident):
         children += FAM.get(marriage, {}).get("CHIL", [])
     return children or "NA"
 
-
 def get_spouse(ident):
     spouses = []
     marriages = INDI.get(ident, {}).get("FAMS", [])
@@ -81,8 +80,6 @@ def get_spouse(ident):
         wife = FAM.get(marriage, {}).get("WIFE")
         spouses.append(husb if husb != ident else wife)
     return spouses
-
-
 
 def marriagable(ident):
     # able to wed - get dob & wedding date
@@ -105,9 +102,12 @@ def marriagable(ident):
     except:
         return 0
 
-def dupID(ident, name):
+def dupINDI(ident, name):
     # another individual added with same ID as another individual already recorded
     raise ValueError (name + " has the same ID as " + lookup_name(ident))
+
+def dupFAM(ident):
+    raise ValueError ("Another family already has the ID: " + ident)
 
 try:
     f = open("example.ged")
@@ -125,14 +125,17 @@ for line in f:
         continue
 
     # catch record starting point
-    if len(parsed) is 3 and parsed[2] in ["INDI", "FAM"]:
+    if len(parsed) is 3 and parsed[2] in ["INDI", "FAM"]:        
         tag = parsed[2].upper()
         arguments = parsed[1]
 
         # persist buffer information to collections
         if current:
+            print (current.get("FAM"))
             if current.get("INDI") in INDI:
-                dup(current.get("INDI"), current.get("NAME"))
+                dupINDI(current.get("INDI"), current.get("NAME"))
+            elif current.get("FAM") in FAM:
+                dupFAM(current.get("FAM"))
             else:
                 persist(current)
 
@@ -232,7 +235,43 @@ class TestUS10(unittest.TestCase):
     def test1(self):
         #ensures the existance of marriagable
         self.failUnless(marriagable is not None)
-        
+
+class TestUS22(unittest.TestCase):
+    def test1Akin(self):
+        # Ensures existance of dupID
+        self.failUnless(dupINDI is not None)
+    def test2Akin(self):
+        # Remove individuals and names & birthday records
+        INDI.clear()
+        NAME_AND_BIRTHDAY.clear()
+        new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
+        # Make sure new user can be added normally
+        persist(new_user)
+        add_user = {'@I1@': new_user}
+        self.assertEqual(INDI, add_user, msg = "Persist did not function as expected")
+    def test3Akin(self):
+        # Check duplicate individual ID function against a random user not being inserted
+        try:
+            new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
+            dupINDI(new_user.get("INDI"), new_user.get("NAME"))
+            self.fail("Duplicate individual ID error was not raised")
+        except:
+            pass
+    def test4Akin(self):
+        # Try to insert individual with same ID as someone already inserted
+        try:
+            new_user = {'INDI': '@I1@', 'NAME': 'Rainer /Shine/', 'SEX': 'M', 'BIRT': '1 AUG 1975', 'FAMC': '@F5@'}
+            persist(new_user)
+            self.fail("Duplicate individual ID error was not raised")
+        except:
+            pass
+    def test5Akin(self):
+        # Checks duplicate family ID function against a random family not being inserted
+        try:
+            dupFAM('@F2@')
+            self.fail("Duplicate family ID error was not raised")
+        except:
+            pass
     
 
 # run automated tests using unittest
