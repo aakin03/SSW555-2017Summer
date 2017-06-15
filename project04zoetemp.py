@@ -77,7 +77,7 @@ def get_spouse(ident):
     spouses = []
     marriages = INDI.get(ident, {}).get("FAMS", [])
     for marriage in marriages:
-        husb = FAM.get(marriage, {}).get("MARR")
+        husb = FAM.get(marriage, {}).get("HUSB")
         wife = FAM.get(marriage, {}).get("WIFE")
         spouses.append(husb if husb != ident else wife)
     return spouses
@@ -88,8 +88,8 @@ def get_earlier_marr(ident):
     for marriage in marriages:
         if(marriage != 0 and marriage != ""):
             print(marriage)
-            date = FAM.get(marriage, {}).get("HUSB")
-            #print(date)
+            date = FAM.get(marriage, {}).get("MARR")
+            print(date)
             #date = datetime.strptime(date, "%d %b %Y")
             #if date_low == 0 or ((date.year - date_low.year) - (1 if (date.month, date.day) < (date_low.month, date_low.day) else 0) < 0):
                 #date_low = date
@@ -100,9 +100,10 @@ def get_earlier_marr(ident):
 def marriagable(ident):
     if current.get("INDI"):
         birthday = current.get("BIRT")
+        print(birthday)
         if(birthday):
             birthday = datetime.strptime(birthday, "%d %b %Y")
-            marriage = get_earlier_marr(current.get("INDI"))
+            marriage = get_earlier_marr(ident)
             #print(marriage)
             
     #try:
@@ -143,12 +144,10 @@ for line in f:
         # persist buffer information to collections
         if current:
             persist(current)
-            marriagable(current)
 
         # now initalize the new record
         if tag == "INDI":
             current = {"INDI": arguments}
-            marriagable(current)
         else:
             current = {"FAM": arguments}
     else:
@@ -181,16 +180,19 @@ f.close()
 # persist final buffer
 if current:
     persist(current)
-    marriagable(current)
 
-
+for person in INDI:
+    print(person)
+    marriagable(person)
+        
 if __name__ == "__main__":
     # setup the identity table
     id_table = PrettyTable()
     id_table.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive",
                             "Death", "Child", "Spouse"]
+    
+
     for key, person in INDI.items():
-        
         id_table.add_row([key, person.get("NAME"), person.get("SEX"),
                           person.get("BIRT"), calc_age(person.get("BIRT")), (person.get("DEAT") == None),
                           person.get("DEAT", "NA"),
