@@ -77,35 +77,48 @@ def get_spouse(ident):
     spouses = []
     marriages = INDI.get(ident, {}).get("FAMS", [])
     for marriage in marriages:
-        husb = FAM.get(marriage, {}).get("HUSB")
+        husb = FAM.get(marriage, {}).get("MARR")
         wife = FAM.get(marriage, {}).get("WIFE")
         spouses.append(husb if husb != ident else wife)
     return spouses
 
+def get_earlier_marr(ident):
+    marriages = INDI.get(ident, {}).get("FAMS", [])
+    date_low = 0
+    for marriage in marriages:
+        if(marriage != 0 and marriage != ""):
+            print(marriage)
+            date = FAM.get(marriage, {}).get("HUSB")
+            #print(date)
+            #date = datetime.strptime(date, "%d %b %Y")
+            #if date_low == 0 or ((date.year - date_low.year) - (1 if (date.month, date.day) < (date_low.month, date_low.day) else 0) < 0):
+                #date_low = date
+    return date_low
+
 
 
 def marriagable(ident):
-    # able to wed - get dob & wedding date
-    try:
-        if(ident):
-            #does not process first line
-            birthday = INDI.get(ident, {}).get("BIRT").get("DATE")
-            marriages = INDI.get(ident, {}).get("FAMS", [])
+    if current.get("INDI"):
+        birthday = current.get("BIRT")
+        if(birthday):
             birthday = datetime.strptime(birthday, "%d %b %Y")
-        for marriage in marriages:
-            wedding_date = FAM.get(marriage, {}).get("MARR")
-            wedding_date = datetime.strptime(wedding_date, "%d %b %Y")
-            if ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 14):
-                print(INDI.get(ident, {}).get("BIRT") + " was illegally married.")
-                #FAM[INDI.get("MARR")] = "NA"
-                #FAM[INDI.get("HUSB")] = "NA"
-                #FAM[INDI.get("WIFE")] = "NA"
-                #if(FAM.get(marriage, {}).get("CHIL") != "NA" and (calc_age(birthday) - calc_age(FAM.get(marriage, {}).get("CHIL")
-        return 0
-    except:
-        return 0
-    #
-# 
+            marriage = get_earlier_marr(current.get("INDI"))
+            #print(marriage)
+            
+    #try:
+     #   if(ident):
+            #print(ident)
+      #      birthday = INDI.get(ident, {}).get("BIRT")
+       #     marriages = INDI.get(ident, {}).get("FAMS", [])
+        #    birthday = datetime.strptime(birthday, "%d %b %Y")
+        #for marriage in marriages:
+         #   wedding_date = FAM.get(marriage, {}).get("MARR")
+          #  wedding_date = datetime.strptime(wedding_date, "%d %b %Y")
+           # if ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 14):
+            #    raise ValueError("Individual has an illegal marriage:", INDI.get(ident, {}).get("NAME"))
+       # return 0
+    #except:
+     #   return 0
 
 try:
     f = open("example.ged")
@@ -130,6 +143,7 @@ for line in f:
         # persist buffer information to collections
         if current:
             persist(current)
+            marriagable(current)
 
         # now initalize the new record
         if tag == "INDI":
@@ -167,6 +181,7 @@ f.close()
 # persist final buffer
 if current:
     persist(current)
+    marriagable(current)
 
 
 if __name__ == "__main__":
@@ -175,6 +190,7 @@ if __name__ == "__main__":
     id_table.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive",
                             "Death", "Child", "Spouse"]
     for key, person in INDI.items():
+        
         id_table.add_row([key, person.get("NAME"), person.get("SEX"),
                           person.get("BIRT"), calc_age(person.get("BIRT")), (person.get("DEAT") == None),
                           person.get("DEAT", "NA"),
