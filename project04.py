@@ -109,6 +109,83 @@ def dupINDI(ident, name):
 def dupFAM(ident):
     raise ValueError ("Another family already has the ID: " + ident)
 
+def upcoming_bdays(ident):
+    today = datetime.today()
+    works = 0
+    bday_fix = 0
+    name = INDI.get(ident, {}).get("NAME")
+    bday_og = INDI.get(ident, {}).get("BIRT")
+    bday = datetime.strptime(bday_og, "%d %b %Y")
+    if(INDI.get(ident, {}).get("DEAT")):
+        return 
+    if(bday.month - today.month < 3 and today.month != 12):
+        if today.month == 1: #JAN
+            if bday.month == 1 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 2 and ((today.day + 31) - bday.day >= 30):
+                works = 1
+            if bday.month == 3 and ((today.day + 31 + 2) - bday.day >= 30):
+                works = 1
+        elif today.month == 2: #FEB
+            if bday.month == 2 and (bday.day - today.day < 30):
+                works = 1
+            if bday.month == 3 and ((today.day + 28) - bday.day <= 30):
+                works = 1
+        elif today.month == 3: #MARCH
+            if bday.month == 3 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 4 and ((today.day + 31) - bday.day >= 30):
+                works = 1
+        elif today.month == 4: #APRIL
+            if bday.month == 4 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 5 and ((today.day + 30) - bday.day >= 30):
+                works = 1
+        elif today.month == 5: #MAY
+            if bday.month == 5 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 6 and ((today.day + 31) - bday.day >= 30):
+                works = 1
+        elif today.month == 6: #JUN
+            if bday.month == 6 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 7 and ((today.day + 30) - bday.day >= 30):
+                works = 1
+        elif today.month == 7: #JUL
+            if bday.month == 7 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 8 and ((today.day + 31) - bday.day >= 30):
+                works = 1
+        elif today.month == 8: #AUG
+            if bday.month == 8 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 9 and ((today.day + 31) - bday.day >= 30):
+                works = 1
+        elif today.month == 9: #SEP
+            if bday.month == 9 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 10 and ((today.day + 30) - bday.day >= 30):
+                works = 1
+        elif today.month == 10: #OCT
+            if bday.month == 10 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 11 and ((today.day + 31) - bday.day >= 30):
+                works = 1
+        elif today.month == 11: #NOV
+            if bday.month == 11 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 12 and ((today.day + 30) - bday.day >= 30):
+                works = 1
+        elif today.month == 12: #DEC
+            if bday.month == 12 and (bday.day - today.day <= 30):
+                works = 1
+            if bday.month == 1 and ((today.day + 21) - bday.day >= 30):
+                works = 1
+        if works == 1:
+           print("Upcoming Birthday: " + name + ", " + bday_og)
+           return 1
+        return 0
+
 try:
     f = open("example.ged")
 except:
@@ -131,7 +208,6 @@ for line in f:
 
         # persist buffer information to collections
         if current:
-            print (current.get("FAM"))
             if current.get("INDI") in INDI:
                 dupINDI(current.get("INDI"), current.get("NAME"))
             elif current.get("FAM") in FAM:
@@ -142,7 +218,6 @@ for line in f:
         # now initalize the new record
         if tag == "INDI":
             current = {"INDI": arguments}
-            marriagable(current)
         else:
             current = {"FAM": arguments}
     else:
@@ -176,6 +251,8 @@ f.close()
 if current:
     persist(current)
 
+for person in INDI:
+    upcoming_bdays(person)
 
 if __name__ == "__main__":
     # setup the identity table
@@ -201,6 +278,8 @@ if __name__ == "__main__":
 
     print("Families")
     print(fam_table)
+
+    
 
 
 class TestUS23(unittest.TestCase):
@@ -231,10 +310,44 @@ class TestUS23(unittest.TestCase):
         res = persist(example)
         self.assertEqual(res, None, msg="Incorrect return type")
     
-class TestUS10(unittest.TestCase):
+class TestUS38(unittest.TestCase):
     def test1(self):
-        #ensures the existance of marriagable
-        self.failUnless(marriagable is not None)
+        #ensures the existance of upcoming_bdays
+        self.failUnless(upcoming_bdays is not None)
+    def test2(self):
+        try:
+            self.assertTrue(len(signature(upcoming_bdays).parameters), 1, msg="Incorrect number of params for upcoming_bdays()")
+        except:
+            pass
+    def test3(self):
+        #insert earlier bday
+        try:
+            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 JAN 1993', 'FAMC': '@F1@'}
+            num = upcoming_bdays(pers.get("INDI"))
+            if num != 0:
+                self.fail("Incorrectly predicted a birthday.")
+        except:
+            pass
+    def test4(self):
+        #insert upcoming bday
+        try:
+            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 JUL 1993', 'FAMC': '@F1@'}
+            num = upcoming_bdays(pers.get("INDI"))
+            if num != 0:
+                self.fail("Incorrectly predicted a birthday.")
+        except:
+            pass
+    def test5(self):
+        #insert earlier bday
+        try:
+            INDI.clear()
+            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 JAN 1993', 'FAMC': '@F1@'}
+            num = upcoming_bdays(pers.get("INDI"))
+            var = {'@I1@': pers}
+            if num != 0:
+                self.fail("Incorrectly predicted a birthday.")
+        except:
+            pass
 
 class TestUS22(unittest.TestCase):
     def test1Akin(self):

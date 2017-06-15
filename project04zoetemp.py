@@ -97,13 +97,15 @@ def get_earlier_marr(ident):
 
 
 
-def marriagable(ident):
-    if current.get("INDI"):
-        birthday = current.get("BIRT")
-        print(birthday)
-        if(birthday):
-            birthday = datetime.strptime(birthday, "%d %b %Y")
-            marriage = get_earlier_marr(ident)
+def marriagable(fam):
+    print(fam)
+    print(FAM.get(fam.get("WIFE"), {}).get("BIRT"))
+    #if current.get("FAM"):
+        #birthday = current.get("BIRT")
+        #print(birthday)
+        #if(birthday):
+         #   birthday = datetime.strptime(birthday, "%d %b %Y")
+          #  marriage = get_earlier_marr(ident)
             #print(marriage)
             
     #try:
@@ -181,9 +183,9 @@ f.close()
 if current:
     persist(current)
 
-for person in INDI:
-    print(person)
-    marriagable(person)
+#for person in INDI:
+    #print(person)
+    #marriagable(person)
         
 if __name__ == "__main__":
     # setup the identity table
@@ -208,6 +210,7 @@ if __name__ == "__main__":
         fam_table.add_row([family.get("FAM"), family.get("MARR", "NA"), family.get("DIV", "NA"),
                            family.get("HUSB"), lookup_name(family.get("HUSB")), family.get("WIFE"),
                            lookup_name(family.get("WIFE")), str(family.get("CHIL"))])
+        marriagable(family)
 
     print("Families")
     print(fam_table)
