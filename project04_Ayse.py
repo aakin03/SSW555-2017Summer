@@ -131,7 +131,6 @@ for line in f:
 
         # persist buffer information to collections
         if current:
-            print (current.get("FAM"))
             if current.get("INDI") in INDI:
                 dupINDI(current.get("INDI"), current.get("NAME"))
             elif current.get("FAM") in FAM:
@@ -202,44 +201,10 @@ if __name__ == "__main__":
     print("Families")
     print(fam_table)
 
-
-class TestUS23(unittest.TestCase):
-    def test1(self):
-        # ensure the persist() function exists in the program
-        self.failUnless(persist is not None)
-    def test2(self):
-        self.assertEqual(len(signature(persist).parameters), 1, msg="Incorrect number of params for persist()")
-    def test3(self):
-        # remove everything
-        INDI.clear()
-        example = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
-        persist(example)
-        # make sure user can be added in normally
-        expected = {'@I1@': example}
-        self.assertEqual(INDI, expected, msg="Persist did not function as expected")
-    def test4(self):
-        # try to insert duplicate:
-        try:
-            example = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
-            persist(example)
-            self.fail("Duplicate error was not raised")
-        except:
-            pass
-    def test5(self):
-        # ensure return value is set to None
-        example = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
-        res = persist(example)
-        self.assertEqual(res, None, msg="Incorrect return type")
-    
-class TestUS10(unittest.TestCase):
-    def test1(self):
-        #ensures the existance of marriagable
-        self.failUnless(marriagable is not None)
-
 class TestUS22(unittest.TestCase):
     def test1Akin(self):
         # Ensures existance of dupID
-        self.failUnless(dupINDI is not None)
+        self.assertTrue(dupINDI is not None)
     def test2Akin(self):
         # Remove individuals and names & birthday records
         INDI.clear()
