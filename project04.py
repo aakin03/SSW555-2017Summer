@@ -315,8 +315,12 @@ class TestUS38(unittest.TestCase):
         #ensures the existance of upcoming_bdays
         self.failUnless(upcoming_bdays is not None)
     def test2(self):
+        #insert bday that requires 3 months for 30 days
         try:
-            self.assertTrue(len(signature(upcoming_bdays).parameters), 1, msg="Incorrect number of params for upcoming_bdays()")
+            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 FEB 1993', 'FAMC': '@F1@'}
+            num = upcoming_bdays(pers.get("INDI"))
+            if num != 0:
+                self.fail("Incorrectly predicted a birthday.")
         except:
             pass
     def test3(self):
@@ -338,12 +342,11 @@ class TestUS38(unittest.TestCase):
         except:
             pass
     def test5(self):
-        #insert earlier bday
+        #insert bday that requires flip from Dec to Jan
         try:
             INDI.clear()
-            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 JAN 1993', 'FAMC': '@F1@'}
+            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
             num = upcoming_bdays(pers.get("INDI"))
-            var = {'@I1@': pers}
             if num != 0:
                 self.fail("Incorrectly predicted a birthday.")
         except:
