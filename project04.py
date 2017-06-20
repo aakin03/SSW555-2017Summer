@@ -3,7 +3,7 @@
 # Written in Python 3
 
 import sys, unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from prettytable import PrettyTable
 from inspect import signature
@@ -118,80 +118,29 @@ def legitDate(theDate, name, ident):
 
 def upcoming_bdays(ident):
     today = datetime.today()
-    works = 0
-    bday_fix = 0
     name = INDI.get(ident, {}).get("NAME")
     bday_og = INDI.get(ident, {}).get("BIRT")
     bday = datetime.strptime(bday_og, "%d %b %Y")
+    bday = bday.replace(year = today.year)
+    margin = today + timedelta(days = 30)
     if(INDI.get(ident, {}).get("DEAT")):
-        return 
-    if(bday.month - today.month < 3 and today.month != 12):
-        if today.month == 1: #JAN
-            if bday.month == 1 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 2 and ((today.day + 31) - bday.day >= 30):
-                works = 1
-            if bday.month == 3 and ((today.day + 31 + 2) - bday.day >= 30):
-                works = 1
-        elif today.month == 2: #FEB
-            if bday.month == 2 and (bday.day - today.day < 30):
-                works = 1
-            if bday.month == 3 and ((today.day + 28) - bday.day <= 30):
-                works = 1
-        elif today.month == 3: #MARCH
-            if bday.month == 3 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 4 and ((today.day + 31) - bday.day >= 30):
-                works = 1
-        elif today.month == 4: #APRIL
-            if bday.month == 4 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 5 and ((today.day + 30) - bday.day >= 30):
-                works = 1
-        elif today.month == 5: #MAY
-            if bday.month == 5 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 6 and ((today.day + 31) - bday.day >= 30):
-                works = 1
-        elif today.month == 6: #JUN
-            if bday.month == 6 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 7 and ((today.day + 30) - bday.day >= 30):
-                works = 1
-        elif today.month == 7: #JUL
-            if bday.month == 7 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 8 and ((today.day + 31) - bday.day >= 30):
-                works = 1
-        elif today.month == 8: #AUG
-            if bday.month == 8 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 9 and ((today.day + 31) - bday.day >= 30):
-                works = 1
-        elif today.month == 9: #SEP
-            if bday.month == 9 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 10 and ((today.day + 30) - bday.day >= 30):
-                works = 1
-        elif today.month == 10: #OCT
-            if bday.month == 10 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 11 and ((today.day + 31) - bday.day >= 30):
-                works = 1
-        elif today.month == 11: #NOV
-            if bday.month == 11 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 12 and ((today.day + 30) - bday.day >= 30):
-                works = 1
-        elif today.month == 12: #DEC
-            if bday.month == 12 and (bday.day - today.day <= 30):
-                works = 1
-            if bday.month == 1 and ((today.day + 21) - bday.day >= 30):
-                works = 1
-        if works == 1:
-           print("Upcoming Birthday: " + name + ", " + bday_og)
-           return 1
-        return 0
+        return
+    if(bday - today < timedelta(days = 30) and bday - today > timedelta(days = 0)):
+        print("Upcoming Birthday: " + name + ", " + bday_og)
+        return 1
+    return 0
+
+def upcoming_marr(ident):
+    today = datetime.today()
+    if FAM.get(ident, {}).get("MARR"):
+        marr1 = FAM.get(ident, {}).get("MARR")
+        marr = datetime.strptime(marr1, "%d %b %Y")
+        marr = marr.replace(year = today.year)
+        margin = today + timedelta(days = 30)
+        if(marr - today < timedelta(days = 30) and marr - today > timedelta(days = 0)):
+            print("Upcoming Anniversary: " + marr1)
+        return 1
+    return 0
 
 try:
     f = open("example.ged")
@@ -261,6 +210,9 @@ if current:
 
 for person in INDI:
     upcoming_bdays(person)
+
+for family in FAM:
+    upcoming_marr(family)
 
 if __name__ == "__main__":
     # setup the identity table
