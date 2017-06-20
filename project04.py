@@ -26,9 +26,6 @@ FAM = {}
 # list of tuples (Name, DOB) to prevent duplicates
 NAME_AND_BIRTHDAY = []
 
-# list of errors
-ERRORS = []
-
 # buffer to hold person/family info
 current = None
 # buffer to store what a DATE tag is for
@@ -107,17 +104,17 @@ def marriagable(ident):
 
 def dupINDI(ident, name):
     # another individual added with same ID as another individual already recorded
-    ERRORS.append("Error US22: " + name + " (" + ident + ") has the same ID as " + lookup_name(ident))
+    raise ValueError ("Error US22: " + name + " (" + ident + ") has the same ID as " + lookup_name(ident))
 
 def dupFAM(ident):
-    ERRORS.append("Error US22: Another family already has the ID: " + ident)
+    raise ValueError ("Error US22: Another family already has the ID: " + ident)
 
 def legitDate(theDate, name, ident):
     dateFormat = "%d %b %Y"
     try:
         theDate = datetime.strptime(theDate, dateFormat)
     except:
-        ERRORS.append("Error US42: " + theDate + " is not a real date. Please fix "+ name + " (" + ident + ")'s information before running again.")
+        raise ValueError ("Error US42: " + theDate + " is not a real date. Please fix "+ name + " (" + ident + ")'s information before running again.")
 
 def upcoming_bdays(ident):
     today = datetime.today()
@@ -228,7 +225,7 @@ if __name__ == "__main__":
                           person.get("DEAT", "NA"),
                           get_children(key), get_spouse(key)])
 
-    print("\nIndividuals")
+    print("Individuals")
     print(id_table)
 
     fam_table = PrettyTable()
@@ -239,11 +236,10 @@ if __name__ == "__main__":
                            family.get("HUSB"), lookup_name(family.get("HUSB")), family.get("WIFE"),
                            lookup_name(family.get("WIFE")), str(family.get("CHIL"))])
 
-    print("\nFamilies")
+    print("Families")
     print(fam_table)
 
-    for e in ERRORS:
-        print (e)
+    
 
 
 class TestUS23(unittest.TestCase):
