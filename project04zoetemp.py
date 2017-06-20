@@ -3,8 +3,7 @@
 # Written in Python 3
 
 import sys, unittest
-from datetime import datetime
-
+from datetime import datetime, timedelta
 from prettytable import PrettyTable
 from inspect import signature
 
@@ -34,7 +33,7 @@ date_for = None
 # helper function to save buffer into collection
 # identifies what type of object is in "current"
 # then saves it into the corresponding dictionary
-def persist(buffer):
+def persist(current):
     if current.get("INDI"):
         # create a tuple that is used to check for uniqueness
         name_birthday = (current.get("NAME", ""), current.get("BIRT"))
@@ -72,7 +71,6 @@ def get_children(ident):
         children += FAM.get(marriage, {}).get("CHIL", [])
     return children or "NA"
 
-
 def get_spouse(ident):
     spouses = []
     marriages = INDI.get(ident, {}).get("FAMS", [])
@@ -82,46 +80,59 @@ def get_spouse(ident):
         spouses.append(husb if husb != ident else wife)
     return spouses
 
-def get_earlier_marr(ident):
-    marriages = INDI.get(ident, {}).get("FAMS", [])
-    date_low = 0
-    for marriage in marriages:
-        if(marriage != 0 and marriage != ""):
-            print(marriage)
-            date = FAM.get(marriage, {}).get("MARR")
-            print(date)
-            #date = datetime.strptime(date, "%d %b %Y")
-            #if date_low == 0 or ((date.year - date_low.year) - (1 if (date.month, date.day) < (date_low.month, date_low.day) else 0) < 0):
-                #date_low = date
-    return date_low
+def marriagable(ident):
+    # able to wed - get dob & wedding date
+    try:
+        if(ident):
+            #does not process first line
+            birthday = INDI.get(ident, {}).get("BIRT").get("DATE")
+            marriages = INDI.get(ident, {}).get("FAMS", [])
+            birthday = datetime.strptime(birthday, "%d %b %Y")
+        for marriage in marriages:
+            wedding_date = FAM.get(marriage, {}).get("MARR")
+            wedding_date = datetime.strptime(wedding_date, "%d %b %Y")
+            if ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 14):
+                print(INDI.get(ident, {}).get("BIRT") + " was illegally married.")
+                #FAM[INDI.get("MARR")] = "NA"
+                #FAM[INDI.get("HUSB")] = "NA"
+                #FAM[INDI.get("WIFE")] = "NA"
+                #if(FAM.get(marriage, {}).get("CHIL") != "NA" and (calc_age(birthday) - calc_age(FAM.get(marriage, {}).get("CHIL")
+        return 0
+    except:
+        return 0
 
+def dupINDI(ident, name):
+    # another individual added with same ID as another individual already recorded
+    raise ValueError (name + " has the same ID as " + lookup_name(ident))
 
+def dupFAM(ident):
+    raise ValueError ("Another family already has the ID: " + ident)
 
-def marriagable(fam):
-    print(fam)
-    print(FAM.get(fam.get("WIFE"), {}).get("BIRT"))
-    #if current.get("FAM"):
-        #birthday = current.get("BIRT")
-        #print(birthday)
-        #if(birthday):
-         #   birthday = datetime.strptime(birthday, "%d %b %Y")
-          #  marriage = get_earlier_marr(ident)
-            #print(marriage)
-            
-    #try:
-     #   if(ident):
-            #print(ident)
-      #      birthday = INDI.get(ident, {}).get("BIRT")
-       #     marriages = INDI.get(ident, {}).get("FAMS", [])
-        #    birthday = datetime.strptime(birthday, "%d %b %Y")
-        #for marriage in marriages:
-         #   wedding_date = FAM.get(marriage, {}).get("MARR")
-          #  wedding_date = datetime.strptime(wedding_date, "%d %b %Y")
-           # if ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 14):
-            #    raise ValueError("Individual has an illegal marriage:", INDI.get(ident, {}).get("NAME"))
-       # return 0
-    #except:
-     #   return 0
+def upcoming_bdays(ident):
+    today = datetime.today()
+    name = INDI.get(ident, {}).get("NAME")
+    bday_og = INDI.get(ident, {}).get("BIRT")
+    bday = datetime.strptime(bday_og, "%d %b %Y")
+    bday = bday.replace(year = today.year)
+    margin = today + timedelta(days = 30)
+    if(INDI.get(ident, {}).get("DEAT")):
+        return
+    if(bday - today < timedelta(days = 30) and bday - today > timedelta(days = 0)):
+        print("Upcoming Birthday: " + name + ", " + bday_og)
+        return 1
+    return 0
+
+def upcoming_marr(ident):
+    today = datetime.today()
+    if FAM.get(ident, {}).get("MARR"):
+        marr1 = FAM.get(ident, {}).get("MARR")
+        marr = datetime.strptime(marr1, "%d %b %Y")
+        marr = marr.replace(year = today.year)
+        margin = today + timedelta(days = 30)
+        if(marr - today < timedelta(days = 30) and marr - today > timedelta(days = 0)):
+            print("Upcoming Anniversary: " + marr1)
+        return 1
+    return 0
 
 try:
     f = open("example.ged")
@@ -139,13 +150,18 @@ for line in f:
         continue
 
     # catch record starting point
-    if len(parsed) is 3 and parsed[2] in ["INDI", "FAM"]:
+    if len(parsed) is 3 and parsed[2] in ["INDI", "FAM"]:        
         tag = parsed[2].upper()
         arguments = parsed[1]
 
         # persist buffer information to collections
         if current:
-            persist(current)
+            if current.get("INDI") in INDI:
+                dupINDI(current.get("INDI"), current.get("NAME"))
+            elif current.get("FAM") in FAM:
+                dupFAM(current.get("FAM"))
+            else:
+                persist(current)
 
         # now initalize the new record
         if tag == "INDI":
@@ -183,17 +199,17 @@ f.close()
 if current:
     persist(current)
 
-#for person in INDI:
-    #print(person)
-    #marriagable(person)
-        
+for person in INDI:
+    upcoming_bdays(person)
+
+for family in FAM:
+    upcoming_marr(family)
+
 if __name__ == "__main__":
     # setup the identity table
     id_table = PrettyTable()
     id_table.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive",
                             "Death", "Child", "Spouse"]
-    
-
     for key, person in INDI.items():
         id_table.add_row([key, person.get("NAME"), person.get("SEX"),
                           person.get("BIRT"), calc_age(person.get("BIRT")), (person.get("DEAT") == None),
@@ -210,10 +226,11 @@ if __name__ == "__main__":
         fam_table.add_row([family.get("FAM"), family.get("MARR", "NA"), family.get("DIV", "NA"),
                            family.get("HUSB"), lookup_name(family.get("HUSB")), family.get("WIFE"),
                            lookup_name(family.get("WIFE")), str(family.get("CHIL"))])
-        marriagable(family)
 
     print("Families")
     print(fam_table)
+
+    
 
 
 class TestUS23(unittest.TestCase):
@@ -244,11 +261,84 @@ class TestUS23(unittest.TestCase):
         res = persist(example)
         self.assertEqual(res, None, msg="Incorrect return type")
     
-class TestUS10(unittest.TestCase):
+class TestUS38(unittest.TestCase):
     def test1(self):
-        #ensures the existance of marriagable
-        self.failUnless(marriagable is not None)
-        
+        #ensures the existance of upcoming_bdays
+        self.failUnless(upcoming_bdays is not None)
+    def test2(self):
+        #insert bday that requires 3 months for 30 days
+        try:
+            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 FEB 1993', 'FAMC': '@F1@'}
+            num = upcoming_bdays(pers.get("INDI"))
+            if num != 0:
+                self.fail("Incorrectly predicted a birthday.")
+        except:
+            pass
+    def test3(self):
+        #insert earlier bday
+        try:
+            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 JAN 1993', 'FAMC': '@F1@'}
+            num = upcoming_bdays(pers.get("INDI"))
+            if num != 0:
+                self.fail("Incorrectly predicted a birthday.")
+        except:
+            pass
+    def test4(self):
+        #insert upcoming bday
+        try:
+            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 JUL 1993', 'FAMC': '@F1@'}
+            num = upcoming_bdays(pers.get("INDI"))
+            if num != 0:
+                self.fail("Incorrectly predicted a birthday.")
+        except:
+            pass
+    def test5(self):
+        #insert bday that requires flip from Dec to Jan
+        try:
+            INDI.clear()
+            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
+            num = upcoming_bdays(pers.get("INDI"))
+            if num != 0:
+                self.fail("Incorrectly predicted a birthday.")
+        except:
+            pass
+
+class TestUS22(unittest.TestCase):
+    def test1Akin(self):
+        # Ensures existance of dupID
+        self.failUnless(dupINDI is not None)
+    def test2Akin(self):
+        # Remove individuals and names & birthday records
+        INDI.clear()
+        NAME_AND_BIRTHDAY.clear()
+        new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
+        # Make sure new user can be added normally
+        persist(new_user)
+        add_user = {'@I1@': new_user}
+        self.assertEqual(INDI, add_user, msg = "Persist did not function as expected")
+    def test3Akin(self):
+        # Check duplicate individual ID function against a random user not being inserted
+        try:
+            new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
+            dupINDI(new_user.get("INDI"), new_user.get("NAME"))
+            self.fail("Duplicate individual ID error was not raised")
+        except:
+            pass
+    def test4Akin(self):
+        # Try to insert individual with same ID as someone already inserted
+        try:
+            new_user = {'INDI': '@I1@', 'NAME': 'Rainer /Shine/', 'SEX': 'M', 'BIRT': '1 AUG 1975', 'FAMC': '@F5@'}
+            persist(new_user)
+            self.fail("Duplicate individual ID error was not raised")
+        except:
+            pass
+    def test5Akin(self):
+        # Checks duplicate family ID function against a random family not being inserted
+        try:
+            dupFAM('@F2@')
+            self.fail("Duplicate family ID error was not raised")
+        except:
+            pass
     
 
 # run automated tests using unittest
