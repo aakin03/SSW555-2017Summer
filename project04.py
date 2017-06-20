@@ -104,10 +104,17 @@ def marriagable(ident):
 
 def dupINDI(ident, name):
     # another individual added with same ID as another individual already recorded
-    raise ValueError (name + " has the same ID as " + lookup_name(ident))
+    raise ValueError ("Error US22: " + name + " (" + ident + ") has the same ID as " + lookup_name(ident))
 
 def dupFAM(ident):
-    raise ValueError ("Another family already has the ID: " + ident)
+    raise ValueError ("Error US22: Another family already has the ID: " + ident)
+
+def legitDate(theDate, name, ident):
+    dateFormat = "%d %b %Y"
+    try:
+        theDate = datetime.strptime(theDate, dateFormat)
+    except:
+        raise ValueError ("Error US42: " + theDate + " is not a real date. Please fix "+ name + " (" + ident + ")'s information before running again.")
 
 def upcoming_bdays(ident):
     today = datetime.today()
@@ -234,6 +241,7 @@ for line in f:
                 date_for = tag
             # special case to combine date with preceding tag
             elif tag == "DATE":
+                legitDate(arguments, current.get("NAME"), current.get("INDI"))
                 current[date_for] = arguments
             # handle possibility of multiple tag values
             elif tag in ["CHIL", "FAMS"]:
@@ -388,6 +396,21 @@ class TestUS22(unittest.TestCase):
             self.fail("Duplicate family ID error was not raised")
         except:
             pass
+
+class TestUS42(unittest.TestCase):
+    def test1Akin(self):
+        # Ensures existance of legitDate
+        self.assertTrue(legitDate is not None)
+    def test2Akin(self):
+        INDI.clear()
+        NAME_AND_BIRTHDAY.clear()
+        #Make sure new_user can still be added with legitimate date
+        new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
+        persist(new_user)
+    def test3Akin(self):
+        new_user = {'INDI': '@I2@', 'NAME': 'Phil /Dunfee/', 'SEX': 'M', 'BIRT': '35 MAY 1972', 'FAMC': '@F1@'}
+        with self.assertRaises(ValueError):
+            legitDate(new_user.get("BIRT"), new_user.get("NAME"), new_user.get("INDI"))
     
 
 # run automated tests using unittest

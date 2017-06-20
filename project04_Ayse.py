@@ -2,7 +2,7 @@
 # SSW 555 Project 03
 # Written in Python 3
 
-import sys, unittest
+import sys, unittest, time
 from datetime import datetime
 
 from prettytable import PrettyTable
@@ -38,8 +38,12 @@ def persist(current):
     if current.get("INDI"):
         # create a tuple that is used to check for uniqueness
         name_birthday = (current.get("NAME", ""), current.get("BIRT"))
+        # check if dates are legitimate 
         if name_birthday in NAME_AND_BIRTHDAY:
             raise ValueError("Duplicate individual detected in file:", name_birthday)
+        # check to see if individual already in individual collection
+        if current.get("INDI") in INDI:
+            dupINDI(current.get("INDI"), current.get("NAME"))
         else:
             # add user into the collection
             INDI[current.get("INDI")] = current
@@ -104,11 +108,18 @@ def marriagable(ident):
 
 def dupINDI(ident, name):
     # another individual added with same ID as another individual already recorded
-    raise ValueError (name + " has the same ID as " + lookup_name(ident))
+    raise ValueError ("Error US22: " + name + " (" + ident + ") has the same ID as " + lookup_name(ident))
 
 def dupFAM(ident):
-    raise ValueError ("Another family already has the ID: " + ident)
+    raise ValueError ("Error US22: Another family already has the ID: " + ident)
 
+def legitDate(theDate, name, ident):
+    dateFormat = "%d %b %Y"
+    try:
+        theDate = datetime.strptime(theDate, dateFormat)
+    except:
+        raise ValueError ("Error US42: " + theDate + " is not a real date. Please fix "+ name + " (" + ident + ")'s information before running again.")
+        
 try:
     f = open("example.ged")
 except:
@@ -158,6 +169,7 @@ for line in f:
                 date_for = tag
             # special case to combine date with preceding tag
             elif tag == "DATE":
+                legitDate(arguments, current.get("NAME"), current.get("INDI"))
                 current[date_for] = arguments
             # handle possibility of multiple tag values
             elif tag in ["CHIL", "FAMS"]:
@@ -203,8 +215,9 @@ if __name__ == "__main__":
 
 class TestUS22(unittest.TestCase):
     def test1Akin(self):
-        # Ensures existance of dupID
+        # Ensures existance of dupINDI & dupFAM
         self.assertTrue(dupINDI is not None)
+        self.assertTrue(dupFAM is not None)
     def test2Akin(self):
         # Remove individuals and names & birthday records
         INDI.clear()
@@ -216,27 +229,34 @@ class TestUS22(unittest.TestCase):
         self.assertEqual(INDI, add_user, msg = "Persist did not function as expected")
     def test3Akin(self):
         # Check duplicate individual ID function against a random user not being inserted
-        try:
-            new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
+        new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
+        with self.assertRaises(ValueError):
             dupINDI(new_user.get("INDI"), new_user.get("NAME"))
-            self.fail("Duplicate individual ID error was not raised")
-        except:
-            pass
     def test4Akin(self):
         # Try to insert individual with same ID as someone already inserted
-        try:
-            new_user = {'INDI': '@I1@', 'NAME': 'Rainer /Shine/', 'SEX': 'M', 'BIRT': '1 AUG 1975', 'FAMC': '@F5@'}
+        new_user = {'INDI': '@I1@', 'NAME': 'Rainer /Shine/', 'SEX': 'M', 'BIRT': '1 AUG 1975', 'FAMC': '@F5@'}
+        with self.assertRaises(ValueError):
             persist(new_user)
-            self.fail("Duplicate individual ID error was not raised")
-        except:
-            pass
     def test5Akin(self):
         # Checks duplicate family ID function against a random family not being inserted
-        try:
+        with self.assertRaises(ValueError):
             dupFAM('@F2@')
-            self.fail("Duplicate family ID error was not raised")
-        except:
-            pass
+
+class TestUS42(unittest.TestCase):
+    def test1Akin(self):
+        # Ensures existance of legitDate
+        self.assertTrue(legitDate is not None)
+    def test2Akin(self):
+        INDI.clear()
+        NAME_AND_BIRTHDAY.clear()
+        #Make sure new_user can still be added with legitimate date
+        new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
+        persist(new_user)
+    def test3Akin(self):
+        new_user = {'INDI': '@I2@', 'NAME': 'Phil /Dunfee/', 'SEX': 'M', 'BIRT': '35 MAY 1972', 'FAMC': '@F1@'}
+        with self.assertRaises(ValueError):
+            legitDate(new_user.get("BIRT"), new_user.get("NAME"), new_user.get("INDI"))
+
 
 # run automated tests using unittest
 def run_test_harness():
