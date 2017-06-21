@@ -26,6 +26,9 @@ FAM = {}
 # list of tuples (Name, DOB) to prevent duplicates
 NAME_AND_BIRTHDAY = []
 
+# list of errors
+ERRORS = []
+
 # buffer to hold person/family info
 current = None
 # buffer to store what a DATE tag is for
@@ -105,17 +108,16 @@ def marriagable(ident):
 
 def dupINDI(ident, name):
     # another individual added with same ID as another individual already recorded
-    raise ValueError ("Error US22: " + name + " (" + ident + ") has the same ID as " + lookup_name(ident))
+    ERRORS.append("Error US22: " + name + " (" + ident + ") has the same ID as " + lookup_name(ident))
 
 def dupFAM(ident):
-    raise ValueError ("Error US22: Another family already has the ID: " + ident)
+    ERRORS.append("Error US22: Another family already has the ID: " + ident)
 
 def legitDate(theDate, name, ident):
-    dateFormat = "%d %b %Y"
     try:
-        theDate = datetime.strptime(theDate, dateFormat)
+        theDate = datetime.strptime(theDate, "%d %b %Y")
     except:
-        raise ValueError ("Error US42: " + theDate + " is not a real date. Please fix "+ name + " (" + ident + ")'s information before running again.")
+        ERRORS.append("Error US42: " + theDate + " is not a real date. Please fix "+ name + " (" + ident + ")'s information before running again.")
 
 def upcoming_bdays(ident):
     today = datetime.today()
@@ -135,11 +137,15 @@ def upcoming_marr(ident):
     today = datetime.today()
     if FAM.get(ident, {}).get("MARR"):
         marr1 = FAM.get(ident, {}).get("MARR")
+        husb = FAM.get(ident, {}).get("HUSB")
+        husb = lookup_name(husb)
+        wife = FAM.get(ident, {}).get("WIFE")
+        wife = lookup_name(wife)
         marr = datetime.strptime(marr1, "%d %b %Y")
         marr = marr.replace(year = today.year)
         margin = today + timedelta(days = 30)
         if(marr - today < timedelta(days = 30) and marr - today > timedelta(days = 0)):
-            print("Upcoming Anniversary: " + marr1)
+            print("Upcoming Anniversary: " + marr1 + " for " + husb + " & " + wife)
         return 1
     return 0
 
@@ -227,7 +233,7 @@ if __name__ == "__main__":
                           person.get("DEAT", "NA"),
                           get_children(key), get_spouse(key)])
 
-    print("Individuals")
+    print("\nIndividuals")
     print(id_table)
 
     fam_table = PrettyTable()
@@ -238,11 +244,11 @@ if __name__ == "__main__":
                            family.get("HUSB"), lookup_name(family.get("HUSB")), family.get("WIFE"),
                            lookup_name(family.get("WIFE")), str(family.get("CHIL"))])
 
-    print("Families")
+    print("\nFamilies")
     print(fam_table)
 
-    
-
+    for e in ERRORS:
+        print (e)
 
 class TestUS23(unittest.TestCase):
     def test1(self):

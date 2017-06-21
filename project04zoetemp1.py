@@ -134,6 +134,11 @@ def upcoming_marr(ident):
     today = datetime.today()
     if FAM.get(ident, {}).get("MARR"):
         marr1 = FAM.get(ident, {}).get("MARR")
+        husb = FAM.get(ident, {}).get("HUSB").get("NAME")
+        if(husb):
+            print(husb)
+        else:
+            print("no husb")
         marr = datetime.strptime(marr1, "%d %b %Y")
         marr = marr.replace(year = today.year)
         margin = today + timedelta(days = 30)
