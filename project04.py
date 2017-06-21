@@ -137,11 +137,15 @@ def upcoming_marr(ident):
     today = datetime.today()
     if FAM.get(ident, {}).get("MARR"):
         marr1 = FAM.get(ident, {}).get("MARR")
+        husb = FAM.get(ident, {}).get("HUSB")
+        husb = lookup_name(husb)
+        wife = FAM.get(ident, {}).get("WIFE")
+        wife = lookup_name(wife)
         marr = datetime.strptime(marr1, "%d %b %Y")
         marr = marr.replace(year = today.year)
         margin = today + timedelta(days = 30)
         if(marr - today < timedelta(days = 30) and marr - today > timedelta(days = 0)):
-            print("Upcoming Anniversary: " + marr1)
+            print("Upcoming Anniversary: " + marr1 + " for " + husb + " & " + wife)
         return 1
     return 0
 
