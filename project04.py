@@ -249,7 +249,6 @@ if __name__ == "__main__":
     for e in ERRORS:
         print (e)
 
-
 class TestUS23(unittest.TestCase):
     def test1(self):
         # ensure the persist() function exists in the program
