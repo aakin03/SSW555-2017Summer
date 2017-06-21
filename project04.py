@@ -86,21 +86,22 @@ def marriagable(ident):
     try:
         if(ident):
             #does not process first line
-            birthday = INDI.get(ident, {}).get("BIRT").get("DATE")
+            birthday = INDI.get(ident, {}).get("BIRT")
             marriages = INDI.get(ident, {}).get("FAMS", [])
             birthday = datetime.strptime(birthday, "%d %b %Y")
         for marriage in marriages:
             wedding_date = FAM.get(marriage, {}).get("MARR")
             wedding_date = datetime.strptime(wedding_date, "%d %b %Y")
             if ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 14):
-                print(INDI.get(ident, {}).get("BIRT") + " was illegally married.")
+                print(INDI.get(ident, {}).get("NAME").replace('/','') + " was illegally married (under 14 years old at marriage).")
+                return False
                 #FAM[INDI.get("MARR")] = "NA"
                 #FAM[INDI.get("HUSB")] = "NA"
                 #FAM[INDI.get("WIFE")] = "NA"
                 #if(FAM.get(marriage, {}).get("CHIL") != "NA" and (calc_age(birthday) - calc_age(FAM.get(marriage, {}).get("CHIL")
-        return 0
+        return True
     except:
-        return 0
+        return False
 
 def dupINDI(ident, name):
     # another individual added with same ID as another individual already recorded
@@ -210,6 +211,7 @@ if current:
 
 for person in INDI:
     upcoming_bdays(person)
+    marriagable(person)
 
 for family in FAM:
     upcoming_marr(family)
