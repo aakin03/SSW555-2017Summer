@@ -113,9 +113,8 @@ def dupFAM(ident):
     ERRORS.append("Error US22: Another family already has the ID: " + ident)
 
 def legitDate(theDate, name, ident):
-    dateFormat = "%d %b %Y"
     try:
-        theDate = datetime.strptime(theDate, dateFormat)
+        theDate = datetime.strptime(theDate, "%d %b %Y")
     except:
         ERRORS.append("Error US42: " + theDate + " is not a real date. Please fix "+ name + " (" + ident + ")'s information before running again.")
 
