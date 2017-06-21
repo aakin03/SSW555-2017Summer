@@ -21,10 +21,11 @@ Families
 | @F1@ | 25 JUN 1974 |    NA    |    @I2@    | Phil /Dunfee/ |   @I3@  | Claire /Pritch/  | ['@I1@', '@I4@', '@I5@'] |
 | @F2@ |      NA     |    NA    |    @I6@    |  Jay /Pritch/ |   @I7@  | Delia /Williams/ |         ['@I3@']         |
 | @F3@ | 25 JUN 2001 |    NA    |    @I6@    |  Jay /Pritch/ |   @I8@  | Gloria /Ramirez/ |        ['@I10@']         |
-| @F6@ |      NA     |    NA    |   @I11@    |      None     |   None  |       None       |           None           |
+| @F7@ |      NA     |    NA    |   @I11@    |      None     |   None  |       None       |           None           |
 +------+-------------+----------+------------+---------------+---------+------------------+--------------------------+
 Error US22: Alex /Dunfee/ (@I2@) has the same ID as Phil /Dunfee/
-Error US42: 31 June 1975 is not a real date. Please fix Rainer /Shine/ (@I9@)'s information before running again.
+Error US23: Duplicate individual detected in file: Hayley /Dunfee/ (@I11@) with birthday: 10 DEC 1993
+Error US42: 31 JUN 1975 is not a real date. Please fix Rainer /Shine/ (@I9@)'s information before running again.
 Error US22: Rainer /Shine/ (@I9@) has the same ID as Manny /Delgado/
 Error US22: Another family already has the ID: @F3@
 Error US10: Phil Dunfee was illegally married (under 14 years old at marriage).

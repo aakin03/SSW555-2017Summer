@@ -42,7 +42,7 @@ def persist(current):
         # create a tuple that is used to check for uniqueness
         name_birthday = (current.get("NAME", ""), current.get("BIRT"))
         if name_birthday in NAME_AND_BIRTHDAY:
-            raise ValueError("Duplicate individual detected in file:", name_birthday)
+            ERRORS.append("Error US23: Duplicate individual detected in file: " + current.get("NAME") + " (" + current.get("INDI") + ") with birthday: " + current.get("BIRT"))
         else:
             # add user into the collection
             INDI[current.get("INDI")] = current
