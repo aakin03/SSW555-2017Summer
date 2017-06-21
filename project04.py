@@ -96,7 +96,7 @@ def marriagable(ident):
             wedding_date = FAM.get(marriage, {}).get("MARR")
             wedding_date = datetime.strptime(wedding_date, "%d %b %Y")
             if ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 14):
-                print(INDI.get(ident, {}).get("NAME").replace('/','') + " was illegally married (under 14 years old at marriage).")
+                ERRORS.append("Error US10: "+ INDI.get(ident, {}).get("NAME").replace('/','') + " was illegally married (under 14 years old at marriage).")
                 return False
                 #FAM[INDI.get("MARR")] = "NA"
                 #FAM[INDI.get("HUSB")] = "NA"
@@ -129,7 +129,7 @@ def upcoming_bdays(ident):
     if(INDI.get(ident, {}).get("DEAT")):
         return
     if(bday - today < timedelta(days = 30) and bday - today > timedelta(days = 0)):
-        print("Upcoming Birthday: " + name + ", " + bday_og)
+        ERRORS.append("US38 - Upcoming Birthday: " + name + ", " + bday_og)
         return 1
     return 0
 
@@ -145,7 +145,7 @@ def upcoming_marr(ident):
         marr = marr.replace(year = today.year)
         margin = today + timedelta(days = 30)
         if(marr - today < timedelta(days = 30) and marr - today > timedelta(days = 0)):
-            print("Upcoming Anniversary: " + marr1 + " for " + husb + " & " + wife)
+            ERRORS.append("US39 - Upcoming Anniversary: " + marr1 + " for " + husb + " & " + wife)
         return 1
     return 0
 
