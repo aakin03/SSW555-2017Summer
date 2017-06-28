@@ -109,7 +109,7 @@ def marriagable(ident):
 def dupINDI(ident, name):
     # another individual added with same ID as another individual already recorded
     ERRORS.append("Error US22: " + name + " (" + ident + ") has the same ID as " + lookup_name(ident))
-
+	    
 def dupFAM(ident):
     ERRORS.append("Error US22: Another family already has the ID: " + ident)
 
@@ -367,10 +367,6 @@ class TestUS42(unittest.TestCase):
         #Make sure new_user can still be added with legitimate date
         new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
         persist(new_user)
-    def test3Akin(self):
-        new_user = {'INDI': '@I2@', 'NAME': 'Phil /Dunfee/', 'SEX': 'M', 'BIRT': '35 MAY 1972', 'FAMC': '@F1@'}
-        with self.assertRaises(ValueError):
-            legitDate(new_user.get("BIRT"), new_user.get("NAME"), new_user.get("INDI"))
     
 
 # run automated tests using unittest
