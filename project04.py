@@ -171,8 +171,8 @@ def recent_births(ident):
     margin = today + timedelta(days = 30)
     if(INDI.get(ident, {}).get("DEAT")):
         return
-    if(bday - today < timedelta(days = 30) and bday - today > timedelta(days = 0)):
-        ERRORS.append("US35 - Recent Births: " + name + ", " + bday_og)
+    if(today - bday < timedelta(days = 30) and today - bday > timedelta(days = 0)):
+        ERRORS.append("US35 - Recent Birth: " + name + ", " + bday_og)
         return 1
     return 0
 
@@ -247,6 +247,7 @@ for person in INDI:
     upcoming_bdays(person)
     marriagable(person)
     birthb4death(person)
+    recent_births(person)
 
 for family in FAM:
     upcoming_marr(family)
