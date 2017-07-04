@@ -149,6 +149,34 @@ def upcoming_marr(ident):
         return 1
     return 0
 
+	
+def birthb4death(ident):
+    if ident:
+        if INDI.get(ident, {}).get("DEAT"):
+            dday = INDI.get(ident, {}).get("DEAT")
+            bday = INDI.get(ident, {}).get("BIRT")
+            dday = datetime.strptime(dday, "%d %b %Y")
+            bday = datetime.strptime(bday, "%d %b %Y")
+            name = INDI.get(ident, {}).get("NAME")
+            if(dday - bday <timedelta(days=0)):
+                ERRORS.append("Error US03: Birth before Death: " + name)
+                return 1
+        return 0
+
+def recent_births(ident):
+    today = datetime.today()
+    name = INDI.get(ident, {}).get("NAME")
+    bday_og = INDI.get(ident, {}).get("BIRT")
+    bday = datetime.strptime(bday_og, "%d %b %Y")
+    margin = today + timedelta(days = 30)
+    if(INDI.get(ident, {}).get("DEAT")):
+        return
+    if(bday - today < timedelta(days = 30) and bday - today > timedelta(days = 0)):
+        ERRORS.append("US35 - Recent Births: " + name + ", " + bday_og)
+        return 1
+    return 0
+
+
 try:
     f = open("example.ged")
 except:
@@ -218,6 +246,7 @@ if current:
 for person in INDI:
     upcoming_bdays(person)
     marriagable(person)
+    birthb4death(person)
 
 for family in FAM:
     upcoming_marr(family)
