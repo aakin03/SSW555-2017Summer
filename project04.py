@@ -29,6 +29,9 @@ NAME_AND_BIRTHDAY = []
 # list of errors
 ERRORS = []
 
+# list of notices
+STATEMENTS = []
+
 # buffer to hold person/family info
 current = None
 # buffer to store what a DATE tag is for
@@ -111,13 +114,31 @@ def dupINDI(ident, name):
     ERRORS.append("Error US22: " + name + " (" + ident + ") has the same ID as " + lookup_name(ident))
 	    
 def dupFAM(ident):
-    ERRORS.append("Error US22: Another family already has the ID: " + ident)
+    ERRORS.append("Error US22: There are multiple families with the ID: " + ident)
 
 def legitDate(theDate, name, ident):
+    now = datetime.now()
     try:
         theDate = datetime.strptime(theDate, "%d %b %Y")
-    except:
+    except ValueError:
         ERRORS.append("Error US42: " + theDate + " is not a real date. Please fix "+ name + " (" + ident + ")'s information before running again.")
+    if theDate.year > now.year:
+        theDate = datetime.strftime(theDate, "%d %b %Y")
+        ERRORS.append("Error US01: " + theDate + " is in the future. Please fix " + name + " (" + ident + ")'s information before running again.")
+
+def orphans(famID):
+    famMom = INDI.get(FAM.get(famID).get("WIFE"))
+    famDad = INDI.get(FAM.get(famID).get("HUSB"))
+    famKids = []
+    if FAM.get(famID).get("CHIL"):
+        for kid in FAM.get(famID).get("CHIL"):
+            birthday = INDI.get(kid).get("BIRT")
+            if calc_age(birthday) < 18:
+                famKids.append(INDI.get(kid).get("NAME") + " (" + kid + ")")
+    if famMom:
+        if famMom.get("DEAT") and famDad:
+                if famDad.get("DEAT") and famKids:
+                    STATEMENTS.append("US33 - The following kids are orphans: " + str(famKids))
 
 def upcoming_bdays(ident):
     today = datetime.today()
@@ -129,7 +150,7 @@ def upcoming_bdays(ident):
     if(INDI.get(ident, {}).get("DEAT")):
         return
     if(bday - today < timedelta(days = 30) and bday - today > timedelta(days = 0)):
-        ERRORS.append("US38 - Upcoming Birthday: " + name + ", " + bday_og)
+        STATEMENTS.append("US38 - Upcoming Birthday: " + name + ", " + bday_og)
         return 1
     return 0
 
@@ -145,7 +166,7 @@ def upcoming_marr(ident):
         marr = marr.replace(year = today.year)
         margin = today + timedelta(days = 30)
         if(marr - today < timedelta(days = 30) and marr - today > timedelta(days = 0)):
-            ERRORS.append("US39 - Upcoming Anniversary: " + marr1 + " for " + husb + " & " + wife)
+            STATEMENTS.append("US39 - Upcoming Anniversary: " + marr1 + " for " + husb + " & " + wife)
         return 1
     return 0
 
@@ -172,7 +193,7 @@ def recent_births(ident):
     if(INDI.get(ident, {}).get("DEAT")):
         return
     if(today - bday < timedelta(days = 30) and today - bday > timedelta(days = 0)):
-        ERRORS.append("US35 - Recent Birth: " + name + ", " + bday_og)
+        STATEMENTS.append("US35 - Recent Birth: " + name + ", " + bday_og)
         return 1
     return 0
 
@@ -251,6 +272,7 @@ for person in INDI:
 
 for family in FAM:
     upcoming_marr(family)
+    orphans(family)
 
 if __name__ == "__main__":
     # setup the identity table
@@ -279,6 +301,9 @@ if __name__ == "__main__":
 
     for e in ERRORS:
         print (e)
+
+    for s in STATEMENTS:
+        print (s)
 
 class TestUS23(unittest.TestCase):
     def test1(self):
