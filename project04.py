@@ -120,11 +120,11 @@ def legitDate(theDate, name, ident):
     now = datetime.now()
     try:
         theDate = datetime.strptime(theDate, "%d %b %Y")
+        if theDate.year > now.year:
+            theDate = datetime.strftime(theDate, "%d %b %Y")
+            ERRORS.append("Error US01: " + theDate + " is in the future. Please fix " + name + " (" + ident + ")'s information before running again.")
     except ValueError:
         ERRORS.append("Error US42: " + theDate + " is not a real date. Please fix "+ name + " (" + ident + ")'s information before running again.")
-    if theDate.year > now.year:
-        theDate = datetime.strftime(theDate, "%d %b %Y")
-        ERRORS.append("Error US01: " + theDate + " is in the future. Please fix " + name + " (" + ident + ")'s information before running again.")
 
 def orphans(famID):
     famMom = INDI.get(FAM.get(famID).get("WIFE"))
@@ -132,9 +132,12 @@ def orphans(famID):
     famKids = []
     if FAM.get(famID).get("CHIL"):
         for kid in FAM.get(famID).get("CHIL"):
-            birthday = INDI.get(kid).get("BIRT")
-            if calc_age(birthday) < 18:
-                famKids.append(INDI.get(kid).get("NAME") + " (" + kid + ")")
+            try:
+                birthday = INDI.get(kid).get("BIRT")
+                if calc_age(birthday) < 18:
+                    famKids.append(INDI.get(kid).get("NAME") + " (" + kid + ")")
+            except AttributeError:
+                pass
     if famMom:
         if famMom.get("DEAT") and famDad:
                 if famDad.get("DEAT") and famKids:
@@ -304,126 +307,3 @@ if __name__ == "__main__":
 
     for s in STATEMENTS:
         print (s)
-
-class TestUS23(unittest.TestCase):
-    def test1(self):
-        # ensure the persist() function exists in the program
-        self.failUnless(persist is not None)
-    def test2(self):
-        self.assertEqual(len(signature(persist).parameters), 1, msg="Incorrect number of params for persist()")
-    def test3(self):
-        # remove everything
-        INDI.clear()
-        example = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
-        persist(example)
-        # make sure user can be added in normally
-        expected = {'@I1@': example}
-        self.assertEqual(INDI, expected, msg="Persist did not function as expected")
-    def test4(self):
-        # try to insert duplicate:
-        try:
-            example = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
-            persist(example)
-            self.fail("Duplicate error was not raised")
-        except:
-            pass
-    def test5(self):
-        # ensure return value is set to None
-        example = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
-        res = persist(example)
-        self.assertEqual(res, None, msg="Incorrect return type")
-    
-class TestUS38(unittest.TestCase):
-    def test1(self):
-        #ensures the existance of upcoming_bdays
-        self.failUnless(upcoming_bdays is not None)
-    def test2(self):
-        #insert bday that requires 3 months for 30 days
-        try:
-            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 FEB 1993', 'FAMC': '@F1@'}
-            num = upcoming_bdays(pers.get("INDI"))
-            if num != 0:
-                self.fail("Incorrectly predicted a birthday.")
-        except:
-            pass
-    def test3(self):
-        #insert earlier bday
-        try:
-            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 JAN 1993', 'FAMC': '@F1@'}
-            num = upcoming_bdays(pers.get("INDI"))
-            if num != 0:
-                self.fail("Incorrectly predicted a birthday.")
-        except:
-            pass
-    def test4(self):
-        #insert upcoming bday
-        try:
-            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 JUL 1993', 'FAMC': '@F1@'}
-            num = upcoming_bdays(pers.get("INDI"))
-            if num != 0:
-                self.fail("Incorrectly predicted a birthday.")
-        except:
-            pass
-    def test5(self):
-        #insert bday that requires flip from Dec to Jan
-        try:
-            INDI.clear()
-            pers = {'INDI': '@I1@', 'NAME': 'Zoe /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
-            num = upcoming_bdays(pers.get("INDI"))
-            if num != 0:
-                self.fail("Incorrectly predicted a birthday.")
-        except:
-            pass
-
-class TestUS22(unittest.TestCase):
-    def test1Akin(self):
-        # Ensures existance of dupID
-        self.failUnless(dupINDI is not None)
-    def test2Akin(self):
-        # Remove individuals and names & birthday records
-        INDI.clear()
-        NAME_AND_BIRTHDAY.clear()
-        new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
-        # Make sure new user can be added normally
-        persist(new_user)
-        add_user = {'@I1@': new_user}
-        self.assertEqual(INDI, add_user, msg = "Persist did not function as expected")
-    def test3Akin(self):
-        # Check duplicate individual ID function against a random user not being inserted
-        try:
-            new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
-            dupINDI(new_user.get("INDI"), new_user.get("NAME"))
-            self.fail("Duplicate individual ID error was not raised")
-        except:
-            pass
-    def test4Akin(self):
-        # Try to insert individual with same ID as someone already inserted
-        try:
-            new_user = {'INDI': '@I1@', 'NAME': 'Rainer /Shine/', 'SEX': 'M', 'BIRT': '1 AUG 1975', 'FAMC': '@F5@'}
-            persist(new_user)
-            self.fail("Duplicate individual ID error was not raised")
-        except:
-            pass
-    def test5Akin(self):
-        # Checks duplicate family ID function against a random family not being inserted
-        try:
-            dupFAM('@F2@')
-            self.fail("Duplicate family ID error was not raised")
-        except:
-            pass
-
-class TestUS42(unittest.TestCase):
-    def test1Akin(self):
-        # Ensures existance of legitDate
-        self.assertTrue(legitDate is not None)
-    def test2Akin(self):
-        INDI.clear()
-        NAME_AND_BIRTHDAY.clear()
-        #Make sure new_user can still be added with legitimate date
-        new_user = {'INDI': '@I1@', 'NAME': 'Hayley /Dunfee/', 'SEX': 'F', 'BIRT': '10 DEC 1993', 'FAMC': '@F1@'}
-        persist(new_user)
-    
-
-# run automated tests using unittest
-def run_test_harness():
-    unittest.main()
