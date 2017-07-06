@@ -1,0 +1,50 @@
+
+Individuals
++-------+------------------+--------+-------------+-----+-------+-------------+-----------------------------------+--------------------------+
+|   ID  |       Name       | Gender |   Birthday  | Age | Alive |    Death    |               Child               |          Spouse          |
++-------+------------------+--------+-------------+-----+-------+-------------+-----------------------------------+--------------------------+
+|  @I1@ | Hayley /Dunfee/  |   F    | 10 DEC 1993 |  23 |  True |      NA     |                 NA                |            []            |
+|  @I2@ |  Phil /Dunfee/   |   M    |  5 MAY 1972 |  45 |  True |      NA     | ['@I1@', '@I4@', '@I5@', '@I16@'] |         ['@I3@']         |
+|  @I3@ | Claire /Pritch/  |   F    | 15 JUL 1973 |  43 |  True |      NA     | ['@I1@', '@I4@', '@I5@', '@I16@'] |     ['@I2@', '@I6@']     |
+|  @I4@ |  Alex /Dunfee/   |   F    | 32 OCT 1995 |  0  |  True |      NA     |                 NA                |            []            |
+|  @I5@ |  Luke /Dunfee/   |   M    | 19 JAN 1798 | 219 |  True |      NA     |                 NA                |            []            |
+| @I16@ |  Jamie /Dunfee/  |   F    | 30 JUN 2017 |  0  |  True |      NA     |                 NA                |            []            |
+|  @I6@ |   Jay /Pritch/   |   M    | 17 JUN 1945 |  72 | False | 20 NOV 2109 |     ['@I3@', '@I10@', '@I11@']    | ['@I7@', '@I8@', '@I3@'] |
+|  @I7@ | Delia /Williams/ |   F    | 31 JUL 1850 | 166 | False |  6 SEP 2003 |              ['@I3@']             |         ['@I6@']         |
+|  @I8@ | Gloria /Ramirez/ |   F    | 15 NOV 1970 |  46 | False | 20 NOV 2009 |         ['@I10@', '@I11@']        |      ['@I6@', None]      |
+|  @I9@ | Manny /Delgado/  |   M    |  1 JUL 1998 |  19 |  True |      NA     |                 NA                |            []            |
+| @I10@ |   Joe /Pritch/   |   M    | 30 AUG 2018 |  -2 |  True |      NA     |                 NA                |            []            |
+| @I11@ |  Lily /Pritch/   |   F    | 19 JUL 2010 |  6  |  True |      NA     |                 NA                |            []            |
+| @I13@ |   Sal /Banks/    |   F    | 27 FEB 1972 |  45 |  True |      NA     |                 NA                |        ['@I14@']         |
+| @I14@ |  Tony /Baloney/  |   M    |  6 MAY 1971 |  46 |  True |      NA     |                 NA                |        ['@I13@']         |
+| @I15@ |  Rainer /Shine/  |   M    | 13 JUN 1975 |  42 | False | 20 FEB 1974 |                 NA                |            []            |
++-------+------------------+--------+-------------+-----+-------+-------------+-----------------------------------+--------------------------+
+
+Families
++------+-------------+----------+------------+----------------+---------+------------------+-----------------------------------+
+|  ID  |   Married   | Divorced | Husband ID |  Husband Name  | Wife ID |    Wife Name     |              Children             |
++------+-------------+----------+------------+----------------+---------+------------------+-----------------------------------+
+| @F1@ |  5 AUG 1994 |    NA    |    @I2@    | Phil /Dunfee/  |   @I3@  | Claire /Pritch/  | ['@I1@', '@I4@', '@I5@', '@I16@'] |
+| @F2@ |      NA     |    NA    |    @I6@    |  Jay /Pritch/  |   @I7@  | Delia /Williams/ |              ['@I3@']             |
+| @F3@ | 29 JUN 2001 |    NA    |    @I6@    |  Jay /Pritch/  |   @I8@  | Gloria /Ramirez/ |         ['@I10@', '@I11@']        |
+| @F5@ | 31 DEC 1982 |    NA    |   @I14@    | Tony /Baloney/ |  @I13@  |   Sal /Banks/    |                None               |
+| @F6@ |      NA     |    NA    |   @I15@    | Rainer /Shine/ |   None  |       None       |                None               |
+| @F7@ |      NA     |    NA    |    @I6@    |  Jay /Pritch/  |   @I3@  | Claire /Pritch/  |                None               |
++------+-------------+----------+------------+----------------+---------+------------------+-----------------------------------+
+Error US42: 32 OCT 1995 is not a real date. Please fix Alex /Dunfee/ (@I4@)'s information before running again.
+Error US01: 20 Nov 2109 is in the future. Please fix Jay /Pritch/ (@I6@)'s information before running again.
+Error US01: 30 Aug 2018 is in the future. Please fix Joe /Pritch/ (@I10@)'s information before running again.
+Error US23: Duplicate individual detected in file: Hayley /Dunfee/ (@I12@) with birthday: 10 DEC 1993
+Error US22: There are multiple families with the ID: @F3@
+Error US11: Bigamy is not allowed for person Claire /Pritch/
+Error US07: Person Luke /Dunfee/ must be less than 150 years old
+Error US11: Bigamy is not allowed for person Jay /Pritch/
+Error US07: Person Delia /Williams/ must be less than 150 years old
+Error US10: Sal Banks was illegally married (under 14 years old at marriage).
+Error US10: Tony Baloney was illegally married (under 14 years old at marriage).
+Error US03: Birth before Death: Rainer /Shine/
+US38 - Upcoming Birthday: Claire /Pritch/, 15 JUL 1973
+US35 - Recent Birth: Jamie /Dunfee/, 30 JUN 2017
+US38 - Upcoming Birthday: Lily /Pritch/, 19 JUL 2010
+US39 - Upcoming Anniversary: 5 AUG 1994 for Phil /Dunfee/ & Claire /Pritch/
+US33 - The following kids are orphans: ['Joe /Pritch/ (@I10@)', 'Lily /Pritch/ (@I11@)']
