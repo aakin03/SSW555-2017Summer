@@ -52,7 +52,10 @@ def persist(current):
             # update the list with the buffer
             NAME_AND_BIRTHDAY.append(name_birthday)
     elif current.get("FAM"):
-        FAM[current.get("FAM")] = current
+        if current.get("FAM") in FAM:
+            dupFAM(current.get("FAM"))
+        else:
+            FAM[current.get("FAM")] = current
 
 # helper functions for table
 def lookup_name(ident):
@@ -74,6 +77,7 @@ def calc_age(dob):
 def check_age(ident):
     if calc_age(INDI.get(ident, {}).get("BIRT")) >= 150:
         ERRORS.append("Error US07: Person " + INDI.get(ident, {}).get("NAME") + " must be less than 150 years old")
+
 
 def get_children(ident):
     children = []
@@ -126,9 +130,9 @@ def legitDate(theDate, name, ident):
         theDate = datetime.strptime(theDate, "%d %b %Y")
         if theDate.year > now.year:
             theDate = datetime.strftime(theDate, "%d %b %Y")
-            ERRORS.append("Error US01: " + theDate + " is in the future. Please fix " + name + " (" + ident + ")'s information before running again.")
+            ERRORS.append("Error US01: " + theDate + " is in the future. " + name + " (" + ident + ")'s information is incorrect.")
     except ValueError:
-        ERRORS.append("Error US42: " + theDate + " is not a real date. Please fix "+ name + " (" + ident + ")'s information before running again.")
+        ERRORS.append("Error US42: " + theDate + " is not a real date. "+ name + " (" + ident + ")'s information is incorrect.")
 
 def orphans(famID):
     famMom = INDI.get(FAM.get(famID).get("WIFE"))
@@ -153,16 +157,17 @@ def upcoming_bdays(ident):
     bday_og = INDI.get(ident, {}).get("BIRT")
     try:
         bday = datetime.strptime(bday_og, "%d %b %Y")
-    except:
+        bday = bday.replace(year = today.year)
+        margin = today + timedelta(days = 30)
+        if(INDI.get(ident, {}).get("DEAT")):
+            return
+        if(bday - today < timedelta(days = 30) and bday - today > timedelta(days = 0)):
+            STATEMENTS.append("US38 - Upcoming Birthday: " + name + ", " + bday_og)
+            return 1
         return 0
-    bday = bday.replace(year = today.year)
-    margin = today + timedelta(days = 30)
-    if(INDI.get(ident, {}).get("DEAT")):
-        return
-    if(bday - today < timedelta(days = 30) and bday - today > timedelta(days = 0)):
-        STATEMENTS.append("US38 - Upcoming Birthday: " + name + ", " + bday_og)
-        return 1
-    return 0
+    except ValueError:
+        pass
+
 
 def upcoming_marr(ident):
     today = datetime.today()
@@ -182,33 +187,35 @@ def upcoming_marr(ident):
 
 
 def birthb4death(ident):
-    if ident:
-        if INDI.get(ident, {}).get("DEAT"):
-            dday = INDI.get(ident, {}).get("DEAT")
-            bday = INDI.get(ident, {}).get("BIRT")
-            dday = datetime.strptime(dday, "%d %b %Y")
-            bday = datetime.strptime(bday, "%d %b %Y")
-            name = INDI.get(ident, {}).get("NAME")
-            if(dday - bday <timedelta(days=0)):
-                ERRORS.append("Error US03: Birth before Death: " + name)
-                return 1
-        return 0
-
+    try:
+        if ident:
+            if INDI.get(ident, {}).get("DEAT"):
+                dday = INDI.get(ident, {}).get("DEAT")
+                bday = INDI.get(ident, {}).get("BIRT")
+                dday = datetime.strptime(dday, "%d %b %Y")
+                bday = datetime.strptime(bday, "%d %b %Y")
+                name = INDI.get(ident, {}).get("NAME")
+                if(dday - bday <timedelta(days=0)):
+                    ERRORS.append("Error US03: Birth before Death: " + name)
+                    return 1
+            return 0
+    except ValueError:
+        pass
 def recent_births(ident):
     today = datetime.today()
     name = INDI.get(ident, {}).get("NAME")
-    bday_og = INDI.get(ident, {}).get("BIRT")
     try:
+        bday_og = INDI.get(ident, {}).get("BIRT")
         bday = datetime.strptime(bday_og, "%d %b %Y")
-    except:
+        margin = today + timedelta(days = 30)
+        if(INDI.get(ident, {}).get("DEAT")):
+            return
+        if(today - bday < timedelta(days = 30) and today - bday > timedelta(days = 0)):
+            STATEMENTS.append("US35 - Recent Birth: " + name + ", " + bday_og)
+            return 1
         return 0
-    margin = today + timedelta(days = 30)
-    if(INDI.get(ident, {}).get("DEAT")):
-        return
-    if(today - bday < timedelta(days = 30) and today - bday > timedelta(days = 0)):
-        STATEMENTS.append("US35 - Recent Birth: " + name + ", " + bday_og)
-        return 1
-    return 0
+    except ValueError:
+        pass
 
 def check_bigamy(ident):
     fams = INDI.get(ident, {}).get("FAMS", [])
@@ -221,7 +228,6 @@ def check_bigamy(ident):
                 ERRORS.append("Error US11: Bigamy is not allowed for person " + INDI.get(ident,{}).get("NAME"))
             fam_current = True
 
-
 try:
     f = open("example.ged")
 except:
@@ -229,7 +235,6 @@ except:
     sys.exit(1)
 
 for line in f:
-
     # parse the line
     parsed = line.split()
 
@@ -246,8 +251,6 @@ for line in f:
         if current:
             if current.get("INDI") in INDI:
                 dupINDI(current.get("INDI"), current.get("NAME"))
-            elif current.get("FAM") in FAM:
-                dupFAM(current.get("FAM"))
             else:
                 persist(current)
 
