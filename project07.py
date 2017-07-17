@@ -74,6 +74,16 @@ def calc_age(dob):
     except:
         return 0
 
+def calc_age_at_date(dob, date):
+    # age calculator
+    try:
+        birthday = datetime.strptime(dob, "%d %b %Y")
+        date = datetime.strptime(date, "%d %b %Y")
+        return date.year - birthday.year - (1 if (date.month, date.day) <
+                                            (birthday.month, birthday.day) else 0)
+    except:
+        return 0
+
 def check_age(ident):
     if calc_age(INDI.get(ident, {}).get("BIRT")) >= 150:
         ERRORS.append("Error US07: Person " + INDI.get(ident, {}).get("NAME") + " must be less than 150 years old")
@@ -249,6 +259,28 @@ def check_bigamy(ident):
                 ERRORS.append("Error US11: Bigamy is not allowed for person " + INDI.get(ident,{}).get("NAME"))
             fam_current = True
 
+def cougarCheck(ident):
+    if FAM.get(ident, {}).get("MARR"):
+        marr1 = FAM.get(ident, {}).get("MARR")
+        marr_date = datetime.strptime(marr1, "%d %b %Y")
+
+        husb = FAM.get(ident, {}).get("HUSB")
+        husb_age = INDI.get(husb, {}).get("BIRT")
+        husb = lookup_name(husb)
+
+        wife = FAM.get(ident, {}).get("WIFE")
+        wife_age = INDI.get(wife, {}).get("BIRT")
+        wife = lookup_name(wife)
+
+        print("hi")
+
+        if(husb_age*2 > wife_age):
+            STATEMENTS.append("US34 - Large age difference: " + husb + " is over 2xs as old as " + wife)
+        if(wife_age*2 > husb_age):
+            STATEMENTS.append("US34 - Large age difference: " + wife + " is over 2xs as old as " + husb)
+        return 1
+    return 0
+
 try:
     f = open("example.ged")
 except:
@@ -319,11 +351,13 @@ for person in INDI:
     recent_births(person)
     check_age(person)
     check_bigamy(person)
+    
 
 for family in FAM:
     famMom = INDI.get(FAM.get(family).get("WIFE"))
     famDad = INDI.get(FAM.get(family).get("HUSB"))
     upcoming_marr(family)
+    cougarCheck(family)
     orphans(family, famMom, famDad)
     livingMarried(famMom, famDad)
     livingSingle(family, famMom, famDad)
