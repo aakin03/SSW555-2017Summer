@@ -1,5 +1,5 @@
 # Michael Curry, Zoë Millard, Ayse Akin
-# SSW 555 Project 06
+# SSW 555 Project 07
 # Written in Python 3
 
 import sys, unittest
@@ -85,7 +85,7 @@ def calc_age_at_date(dob, date):
         return 0
 
 def check_age(ident):
-    if calc_age(INDI.get(ident, {}).get("BIRT")) >= 150:
+    if not INDI.get(ident, {}).get("DEAT") and calc_age(INDI.get(ident, {}).get("BIRT")) >= 150:
         ERRORS.append("Error US07: Person " + INDI.get(ident, {}).get("NAME") + " must be less than 150 years old")
 
 
@@ -116,7 +116,18 @@ def marriagable(ident):
         for marriage in marriages:
             wedding_date = FAM.get(marriage, {}).get("MARR")
             wedding_date = datetime.strptime(wedding_date, "%d %b %Y")
-            if ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 14):
+            # check to ensure person is born before marriage
+            if ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 0):
+                ERRORS.append("Error US02: "+ INDI.get(ident, {}).get("NAME").replace('/','') + " was married before birth.")
+                return False
+            # check to make sure it is not a posthumus marriage
+            dead = INDI.get(ident, {}).get("DEAT")
+            if dead:
+                death_date = datetime.strptime(dead, "%d %b %Y")
+                if ((wedding_date.year - death_date.year) - (1 if (wedding_date.month, wedding_date.day) < (death_date.month, death_date.day) else 0) >= 0):
+                    ERRORS.append("Error US05: "+ INDI.get(ident, {}).get("NAME").replace('/','') + " was married after death.")
+            # check for legal marriage age
+            elif ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 14):
                 ERRORS.append("Error US10: "+ INDI.get(ident, {}).get("NAME").replace('/','') + " was illegally married (under 14 years old at marriage).")
                 return False
                 #FAM[INDI.get("MARR")] = "NA"
@@ -351,7 +362,7 @@ for person in INDI:
     recent_births(person)
     check_age(person)
     check_bigamy(person)
-    
+
 
 for family in FAM:
     famMom = INDI.get(FAM.get(family).get("WIFE"))
