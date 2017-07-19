@@ -273,16 +273,16 @@ def cougarCheck(ident):
         marr_date = datetime.strptime(marr1, "%d %b %Y")
 
         husb = FAM.get(ident, {}).get("HUSB")
-        husb_age = INDI.get(husb, {}).get("BIRT")
+        husb_age = calc_age(INDI.get(husb, {}).get("BIRT"), INDI.get(husb, {}).get("DEAT"))
         husb = lookup_name(husb)
 
         wife = FAM.get(ident, {}).get("WIFE")
-        wife_age = INDI.get(wife, {}).get("BIRT")
+        wife_age = calc_age(INDI.get(wife, {}).get("BIRT"), INDI.get(wife, {}).get("DEAT"))
         wife = lookup_name(wife)
 
-        if(husb_age*2 > wife_age):
+        if(husb_age > wife_age*2):
             STATEMENTS.append("US34 - Large age difference: " + husb + " is over 2xs as old as " + wife)
-        if(wife_age*2 > husb_age):
+        if(wife_age > husb_age*2):
             STATEMENTS.append("US34 - Large age difference: " + wife + " is over 2xs as old as " + husb)
         return 1
     return 0
