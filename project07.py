@@ -64,28 +64,27 @@ def lookup_name(ident):
         return INDI.get(ident, {}).get("NAME")
     return None
 
-def calc_age(dob):
+def calc_age(dob, endDay):
     # age calculator
     try:
-        today = datetime.today()
+        endDay = datetime.strptime(endDay, "%d %b %Y")
         birthday = datetime.strptime(dob, "%d %b %Y")
-        return today.year - birthday.year - (1 if (today.month, today.day) <
+        return endDay.year - birthday.year - (1 if (endDay.month, endDay.day) <
                                             (birthday.month, birthday.day) else 0)
     except:
-        return 0
-
-def calc_age_at_date(dob, date):
-    # age calculator
-    try:
-        birthday = datetime.strptime(dob, "%d %b %Y")
-        date = datetime.strptime(date, "%d %b %Y")
-        return date.year - birthday.year - (1 if (date.month, date.day) <
+        try:
+            birthday = datetime.strptime(dob, "%d %b %Y")
+            return endDay.year - birthday.year - (1 if (endDay.month, endDay.day) <
                                             (birthday.month, birthday.day) else 0)
-    except:
-        return 0
+        except:
+            return 0
 
 def check_age(ident):
-    if not INDI.get(ident, {}).get("DEAT") and calc_age(INDI.get(ident, {}).get("BIRT")) >= 150:
+    if INDI.get(ident, {}).get("DEAT"):
+        theAge = calc_age(INDI.get(ident, {}).get("BIRT"), INDI.get(ident, {}).get("DEAT"))
+    else:
+        theAge = calc_age(INDI.get(ident, {}).get("BIRT"), datetime.today())
+    if not INDI.get(ident, {}).get("DEAT") and theAge >= 150:
         ERRORS.append("Error US07: Person " + INDI.get(ident, {}).get("NAME") + " must be less than 150 years old")
 
 
@@ -130,10 +129,6 @@ def marriagable(ident):
             elif ((wedding_date.year - birthday.year) - (1 if (wedding_date.month, wedding_date.day) < (birthday.month, birthday.day) else 0) < 14):
                 ERRORS.append("Error US10: "+ INDI.get(ident, {}).get("NAME").replace('/','') + " was illegally married (under 14 years old at marriage).")
                 return False
-                #FAM[INDI.get("MARR")] = "NA"
-                #FAM[INDI.get("HUSB")] = "NA"
-                #FAM[INDI.get("WIFE")] = "NA"
-                #if(FAM.get(marriage, {}).get("CHIL") != "NA" and (calc_age(birthday) - calc_age(FAM.get(marriage, {}).get("CHIL")
         return True
     except:
         return False
@@ -161,8 +156,9 @@ def orphans(famID, famMom, famDad):
         for kid in FAM.get(famID).get("CHIL"):
             try:
                 birthday = INDI.get(kid).get("BIRT")
-                if calc_age(birthday) < 18:
-                    famKids.append(INDI.get(kid).get("NAME") + " (" + kid + ")")
+                if not INDI.get(kid).get("DEAT"):
+                    if calc_age(birthday, datetime.today()) < 18:
+                        famKids.append(INDI.get(kid).get("NAME") + " (" + kid + ")")
             except AttributeError:
                 pass
     if famMom:
@@ -186,8 +182,9 @@ def livingSingle(famID, famMom, famDad):
     if famKids:
         for kid in famKids:
             try:
-                if calc_age(INDI.get(kid).get("BIRT")) > 30 and not INDI.get(kid).get("FAMS"):
-                    aliveSingle.append("US31 - The following individual is alive and has never been married: " + INDI.get(kid).get("NAME") + " (" + INDI.get(kid).get("INDI") + ")")
+                if not INDI.get(kid).get("DEAT"):
+                    if calc_age(INDI.get(kid).get("BIRT"), datetime.today()) > 30 and not INDI.get(kid).get("FAMS"):
+                        aliveSingle.append("US31 - The following individual is alive and has never been married: " + INDI.get(kid).get("NAME") + " (" + INDI.get(kid).get("INDI") + ")")
             except AttributeError:
                 pass
     if aliveSingle:
@@ -282,8 +279,6 @@ def cougarCheck(ident):
         wife = FAM.get(ident, {}).get("WIFE")
         wife_age = INDI.get(wife, {}).get("BIRT")
         wife = lookup_name(wife)
-
-        print("hi")
 
         if(husb_age*2 > wife_age):
             STATEMENTS.append("US34 - Large age difference: " + husb + " is over 2xs as old as " + wife)
@@ -380,16 +375,9 @@ if __name__ == "__main__":
                             "Death", "Child", "Spouse"]
     for key, person in INDI.items():
         if (person.get("DEAT")):
-            endDay = person.get("DEAT")
-            birthday = datetime.strptime(person.get("BIRT"), "%d %b %Y")
-            try:
-                endDay = datetime.strptime(endDay, "%d %b %Y")
-                theAge = endDay.year - birthday.year - (1 if (endDay.month, endDay.day) <
-                                                        (birthday.month, birthday.day) else 0)
-            except ValueError:
-                theAge = calc_age(person.get("BIRT"))
+           theAge = calc_age(person.get("BIRT"), person.get("DEAT"))
         else:
-            theAge = calc_age(person.get("BIRT"))
+            theAge = calc_age(person.get("BIRT"), datetime.today())
         id_table.add_row([key, person.get("NAME"), person.get("SEX"),
                           person.get("BIRT"), theAge, (person.get("DEAT") == None),
                           person.get("DEAT", "NA"),
