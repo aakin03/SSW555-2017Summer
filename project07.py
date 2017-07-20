@@ -305,8 +305,8 @@ def siblingSpacing(ident):
                     if((sib2 - sib1) < timedelta(days = 243) and sib2 - sib1 > timedelta(days = 2)):
                         ERRORS.append("Error US13: Sibling Spacing too small: " + sib1n + ", " + sib2n)
                         return 1
-            except:
-                return 0
+            except ValueError:
+                pass
         return 0
     return 0
 
