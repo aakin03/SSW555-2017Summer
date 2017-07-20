@@ -287,6 +287,36 @@ def cougarCheck(ident):
         return 1
     return 0
 
+def siblingSpacing(ident):
+    if FAM.get(ident, {}).get("CHIL"):
+        #iterate thru all siblings
+        kids = FAM.get(ident, {}).get("CHIL")
+        sib2 = -1
+        sib2n = "n"
+        for kid in kids:
+            sib1d = INDI.get(kid, {}).get("BIRT")
+            try:
+                sib1 = datetime.strptime(sib1d, "%d %b %Y")
+                sib1n = INDI.get(kid, {}).get("NAME")
+                if(sib2 == -1):
+                    sib2 = sib1
+                    sib2n = sib1n
+                    print("no")
+                else:
+                    print("yes")
+                    print(sib1n)
+                    print(sib2n)
+                    print((sib2 - sib1))
+                    if((sib2 - sib1) < timedelta(days = 243) and sib2 - sib1 > timedelta(days = 2)):
+                        print("hi")
+                        ERRORS.append("Error US13 - Sibling Spacing too small: " + name + ", " + bday_og)
+                        return 1
+            except:
+                return 0
+        return 0
+    return 0
+
+
 try:
     f = open("example.ged")
 except:
@@ -367,6 +397,7 @@ for family in FAM:
     orphans(family, famMom, famDad)
     livingMarried(famMom, famDad)
     livingSingle(family, famMom, famDad)
+    siblingSpacing(family)
 
 if __name__ == "__main__":
     # setup the identity table
