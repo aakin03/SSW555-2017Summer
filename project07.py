@@ -87,7 +87,6 @@ def check_age(ident):
     if not INDI.get(ident, {}).get("DEAT") and theAge >= 150:
         ERRORS.append("Error US07: Person " + INDI.get(ident, {}).get("NAME") + " must be less than 150 years old")
 
-
 def get_children(ident):
     children = []
     marriages = INDI.get(ident, {}).get("FAMS", [])
@@ -292,7 +291,6 @@ def siblingSpacing(ident):
         #iterate thru all siblings
         kids = FAM.get(ident, {}).get("CHIL")
         sib2 = -1
-        sib2n = "n"
         for kid in kids:
             sib1d = INDI.get(kid, {}).get("BIRT")
             try:
@@ -309,7 +307,6 @@ def siblingSpacing(ident):
                 pass
         return 0
     return 0
-
 
 try:
     f = open("example.ged")
@@ -346,7 +343,6 @@ for line in f:
         tag = parsed[1].upper()
         arguments = " ".join(parsed[2:])
 
-
     # add info to dict
     if current:
         # get rid of junk tags
@@ -381,7 +377,6 @@ for person in INDI:
     recent_births(person)
     check_age(person)
     check_bigamy(person)
-
 
 for family in FAM:
     famMom = INDI.get(FAM.get(family).get("WIFE"))
