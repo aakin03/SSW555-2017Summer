@@ -301,15 +301,9 @@ def siblingSpacing(ident):
                 if(sib2 == -1):
                     sib2 = sib1
                     sib2n = sib1n
-                    print("no")
                 else:
-                    print("yes")
-                    print(sib1n)
-                    print(sib2n)
-                    print((sib2 - sib1))
                     if((sib2 - sib1) < timedelta(days = 243) and sib2 - sib1 > timedelta(days = 2)):
-                        print("hi")
-                        ERRORS.append("Error US13 - Sibling Spacing too small: " + name + ", " + bday_og)
+                        ERRORS.append("Error US13: Sibling Spacing too small: " + sib1n + ", " + sib2n)
                         return 1
             except:
                 return 0
