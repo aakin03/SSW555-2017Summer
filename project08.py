@@ -193,7 +193,7 @@ def deceased(famID, famMom, famDad):
     if famKids:
         for kid in famKids:
             if INDI.get(kid).get("DEAT"):
-                deadIDs[INDI.get(kid).get("INDI")] : 1
+                deadIDs[INDI.get(kid).get("INDI")] = 1
 
 def dNames(deadIDs):
     for key in deadIDs:
@@ -319,6 +319,22 @@ def siblingSpacing(ident):
             except ValueError:
                 pass
 
+def marriageB4divorce(ident):
+    if FAM.get(ident, {}).get("DIV"):
+        div = FAM.get(ident, {}).get("DIV")
+        if FAM.get(ident, {}).get("MAR"):
+            mar = FAM.get(ident, {}).get("MAR")
+            div = datetime.strptime(div, "%d %b %Y")
+            mar = datetime.strptime(mar, "%d %b %Y")
+            if((div - mar) < timedelta(days = 30)):
+                ERRORS.append("Error US04: Marriage before divorce")
+
+def noIncestAllowed(ident):
+    if INDI.get(ident, {}).get("FAMC"):
+        #fam id
+        #get husband
+        #compare id of husband and wife
+    
 try:
     f = open("example.ged")
 except:
@@ -400,6 +416,7 @@ for family in FAM:
     siblingSpacing(family)
     deceased(family, famMom, famDad)
     marryDead(family, famMom, famDad)
+    marriageB4divorce(family)
 
 if __name__ == "__main__":
     # setup the identity table
