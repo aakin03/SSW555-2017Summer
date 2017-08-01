@@ -339,6 +339,36 @@ def noIncestAllowed(ident):
             if(husbf == wifef):
                 ERRORS.append("Error US18: Incest occuring: " + lookup_name(husb) + " & " + lookup_name(wife))
 
+def checkDeadParents(ident):
+    try:
+        birthday = datetime.strptime(INDI.get(ident, {}).get("BIRT"), "%d %b %Y")
+    except:
+        birthday = None
+    family = INDI.get(ident, {}).get("FAMC")
+    if family and birthday:
+        mom = FAM.get(family, {}).get("WIFE")
+        if mom and (mom != ident):
+            mom_dead = INDI.get(mom, {}).get("DEAT")
+            if mom_dead:
+                try:
+                    mom_deathday = datetime.strptime(mom_dead, "%d %b %Y")
+                except:
+                    mom_deathday = None
+                if mom_deathday and (birthday > mom_deathday):
+                    ERRORS.append("Error US09: " + INDI.get(ident,{}).get("NAME") + " was born after parent's death (dead mother)")
+        dad = FAM.get(family, {}).get("HUSB")
+        if dad and (dad != ident):
+            dad_dead = INDI.get(dad, {}).get("DEAT")
+            if dad_dead:
+                try:
+                    dad_deathday = datetime.strptime(dad_dead, "%d %b %Y")
+                except:
+                    dad_deathday = None
+                if dad_deathday and (birthday > dad_deathday):
+                    ERRORS.append("Error US09: " + INDI.get(ident,{}).get("NAME") + " was born after parent's death (dead father)")
+
+
+
 try:
     f = open("example.ged")
 except:
@@ -408,6 +438,7 @@ for person in INDI:
     recent_births(person)
     check_age(person)
     check_bigamy(person)
+    checkDeadParents(person)
 
 for family in FAM:
     famMom = INDI.get(FAM.get(family).get("WIFE"))
