@@ -330,11 +330,15 @@ def marriageB4divorce(ident):
                 ERRORS.append("Error US04: Marriage before divorce")
 
 def noIncestAllowed(ident):
-    if INDI.get(ident, {}).get("FAMC"):
-        #fam id
-        #get husband
-        #compare id of husband and wife
-    
+    if FAM.get(ident, {}).get("HUSB"):
+        husb = FAM.get(ident, {}).get("HUSB")
+        husbf = INDI.get(husb, {}).get("FAMS")
+        if FAM.get(ident, {}).get("WIFE"):
+            wife = FAM.get(ident, {}).get("WIFE")
+            wifef = INDI.get(wife, {}).get("FAMCS")
+            if(husbf == wifef):
+                ERRORS.append("Error US18: Incest occuring: " + lookup_name(husb) + " & " + lookup_name(wife))
+
 try:
     f = open("example.ged")
 except:
@@ -417,6 +421,7 @@ for family in FAM:
     deceased(family, famMom, famDad)
     marryDead(family, famMom, famDad)
     marriageB4divorce(family)
+    noIncestAllowed(family)
 
 if __name__ == "__main__":
     # setup the identity table
