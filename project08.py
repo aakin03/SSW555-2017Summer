@@ -321,7 +321,6 @@ def siblingSpacing(ident):
 
 def marriageB4divorce(ident):
     if FAM.get(ident, {}).get("DIV"):
-
         div = FAM.get(ident, {}).get("DIV")
         if FAM.get(ident, {}).get("MARR"):
             mar = FAM.get(ident, {}).get("MARR")
@@ -331,15 +330,13 @@ def marriageB4divorce(ident):
             if (div.year - mar.year - (1 if (div.month, div.day)<(mar.month, mar.day) else 0)) < 0:
                 ERRORS.append("Error US04: Marriage before divorce for " + FAM.get(ident, {}).get("FAM"))
 
-def noIncestAllowed(ident):
-    if FAM.get(ident, {}).get("HUSB"):
-        husb = FAM.get(ident, {}).get("HUSB")
-        husbf = INDI.get(husb, {}).get("FAMS")
-        if FAM.get(ident, {}).get("WIFE"):
-            wife = FAM.get(ident, {}).get("WIFE")
-            wifef = INDI.get(wife, {}).get("FAMS")
-            if(husbf == wifef):
-                ERRORS.append("Error US18: Incest occuring: " + lookup_name(husb) + " & " + lookup_name(wife))
+def noIncestAllowed(ident, famDad, famMom):
+    if famDad:
+        husbf = famDad.get("FAMC")        
+        if famMom:
+            wifef = famMom.get("FAMC")
+            if husbf and wifef and husbf == wifef:
+                    ERRORS.append("Error US18: Incest occuring: " + famDad.get("NAME") + " & " + famMom.get("NAME"))
 
 def checkDeadParents(ident):
     try:
@@ -368,8 +365,6 @@ def checkDeadParents(ident):
                     dad_deathday = None
                 if dad_deathday and (birthday > dad_deathday):
                     ERRORS.append("Error US09: " + INDI.get(ident,{}).get("NAME") + " was born after parent's death (dead father)")
-
-
 
 try:
     f = open("example.ged")
@@ -454,7 +449,7 @@ for family in FAM:
     deceased(family, famMom, famDad)
     marryDead(family, famMom, famDad)
     marriageB4divorce(family)
-    noIncestAllowed(family)
+    noIncestAllowed(family, famDad, famMom)
 
 if __name__ == "__main__":
     # setup the identity table
