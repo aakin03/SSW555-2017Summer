@@ -10,7 +10,7 @@ Individuals
 |  @I5@ |   Luke /Dunfee/   |   M    | 19 JAN 1798 | 219 |  True |      NA     |                 NA                |            []            |
 | @I16@ |   Jamie /Dunfee/  |   F    | 30 JUN 1993 |  2  | False | 20 JAN 1996 |                 NA                |            []            |
 |  @I6@ |    Jay /Pritch/   |   M    | 17 JUN 1945 | 164 | False | 20 NOV 2109 |     ['@I3@', '@I10@', '@I11@']    | ['@I7@', '@I8@', '@I3@'] |
-|  @I7@ |  Delia /Williams/ |   F    | 31 JUL 1850 | 153 | False |  6 SEP 2003 |              ['@I3@']             |         ['@I6@']         |
+|  @I7@ |  Delia /Williams/ |   F    | 31 JUL 1850 | 153 | False |  6 SEP 2003 |              ['@I3@']             |    ['@I6@', '@I23@']     |
 |  @I8@ |  Gloria /Ramirez/ |   F    | 15 NOV 1980 |  29 | False | 20 NOV 2009 |         ['@I10@', '@I11@']        |      ['@I6@', None]      |
 |  @I9@ |  Manny /Delgado/  |   M    |  1 JUL 1998 |  19 |  True |      NA     |                 NA                |        ['@I22@']         |
 | @I22@ |   Luna /Stabilo/  |   F    | 29 JUL 1977 |  40 |  True |      NA     |                 NA                |         ['@I9@']         |
@@ -19,11 +19,11 @@ Individuals
 | @I13@ |    Sal /Banks/    |   F    | 27 FEB 1972 |  23 | False | 15 JUN 1995 |                 NA                |        ['@I14@']         |
 | @I14@ |   Tony /Baloney/  |   M    |  6 MAY 1971 |  46 |  True |      NA     |                 NA                |        ['@I13@']         |
 | @I15@ |   Rainer /Shine/  |   M    | 13 JUN 1975 |  -2 | False | 20 FEB 1974 |                 NA                |            []            |
-| @I18@ |   Eddard /Stark/  |   M    |  3 OCT 1405 |  45 | False | 17 MAR 1451 |         ['@I6@', '@I23@']         |        ['@I17@']         |
-| @I17@ |  Catelyn /Tully/  |   F    |  6 NOV 1413 |  39 | False | 20 MAR 1453 |         ['@I6@', '@I23@']         |        ['@I18@']         |
+| @I18@ |   Eddard /Stark/  |   M    |  3 OCT 1405 |  45 | False | 17 MAR 1451 |         ['@I7@', '@I23@']         |        ['@I17@']         |
+| @I17@ |  Catelyn /Tully/  |   F    |  6 NOV 1413 |  39 | False | 20 MAR 1453 |         ['@I7@', '@I23@']         |        ['@I18@']         |
 | @I20@ |  Jamie /Lanister/ |   M    |  3 OCT 1371 |  81 | False | 17 MAR 1453 |                 NA                |        ['@I21@']         |
 | @I21@ | Cersei /Lanister/ |   F    |  6 NOV 1413 |  39 | False | 20 MAR 1453 |                 NA                |        ['@I20@']         |
-| @I23@ |    Bran /Stark/   |   M    |  2 JUN 1455 |  43 | False | 23 JUL 1498 |                 NA                |            []            |
+| @I23@ |    Bran /Stark/   |   M    |  2 JUN 1455 |  43 | False | 23 JUL 1498 |                 NA                |         ['@I7@']         |
 +-------+-------------------+--------+-------------+-----+-------+-------------+-----------------------------------+--------------------------+
 
 Families
@@ -36,9 +36,10 @@ Families
 |  @F5@ | 31 DEC 1982 | 30 JUN 1981 |   @I14@    |   Tony /Baloney/  |  @I13@  |   Sal /Banks/    |                None               |
 |  @F6@ |      NA     |      NA     |   @I15@    |   Rainer /Shine/  |   None  |       None       |                None               |
 |  @F7@ |      NA     |      NA     |    @I6@    |    Jay /Pritch/   |   @I3@  | Claire /Pritch/  |                None               |
-|  @F8@ |  4 DEC 1452 |      NA     |   @I18@    |   Eddard /Stark/  |  @I17@  | Catelyn /Tully/  |         ['@I6@', '@I23@']         |
+|  @F8@ |  4 DEC 1452 |      NA     |   @I18@    |   Eddard /Stark/  |  @I17@  | Catelyn /Tully/  |         ['@I7@', '@I23@']         |
 |  @F9@ |  4 DEC 1412 |      NA     |   @I21@    | Cersei /Lanister/ |  @I20@  | Jamie /Lanister/ |                None               |
 | @F10@ |  7 AUG 2005 |  6 AUG 2005 |    @I9@    |  Manny /Delgado/  |  @I22@  |  Luna /Stabilo/  |                None               |
+| @F11@ |  8 JAN 1980 |  7 MAY 2006 |   @I23@    |    Bran /Stark/   |   @I7@  | Delia /Williams/ |                None               |
 +-------+-------------+-------------+------------+-------------------+---------+------------------+-----------------------------------+
 Error US42: 32 OCT 1995 is not a real date.
 Error US01: 20 Nov 2109 is in the future. Jay /Pritch/ (@I6@)'s information is incorrect.
@@ -49,21 +50,23 @@ Error US22: There are multiple families with the ID: @F3@
 Error US11: Bigamy is not allowed for person Claire /Pritch/
 Error US07: Person Luke /Dunfee/ must be less than 150 years old
 Error US11: Bigamy is not allowed for person Jay /Pritch/
+Error US09: Delia /Williams/ was born after parent's death (dead mother)
+Error US09: Delia /Williams/ was born after parent's death (dead father)
 Error US10: Manny Delgado was illegally married (under 14 years old at marriage).
 Error US10: Tony Baloney was illegally married (under 14 years old at marriage).
 Error US03: Birth before Death: Rainer /Shine/
 Error US05: Eddard Stark was married after death.
 Error US02: Cersei Lanister was married before birth.
+Error US05: Bran Stark was married after death.
 Error US09: Bran /Stark/ was born after parent's death (dead mother)
 Error US09: Bran /Stark/ was born after parent's death (dead father)
 Error US13: Sibling Spacing too small: Jamie /Dunfee/, Hayley /Dunfee/
 Error US06: Sal /Banks/ (@I13@) died before her divorce.
 Error US04: Marriage before divorce for @F5@
-Error US18: Incest occuring: Tony /Baloney/ & Sal /Banks/
-Error US18: Incest occuring: Eddard /Stark/ & Catelyn /Tully/
-Error US18: Incest occuring: Cersei /Lanister/ & Jamie /Lanister/
 Error US04: Marriage before divorce for @F10@
-Error US18: Incest occuring: Manny /Delgado/ & Luna /Stabilo/
+Error US06: Delia /Williams/ (@I7@) died before her divorce.
+Error US06: Bran /Stark/ (@I23@) died before his divorce.
+Error US18: Incest occuring: Bran /Stark/ & Delia /Williams/
 US38 - Upcoming Birthday: Joe /Pritch/, 18 AUG 2018
 US35 - Recent Birth: Lily /Pritch/, 19 JUL 2017
 US39 - Upcoming Anniversary: 25 AUG 1994 for Phil /Dunfee/ & Claire /Pritch/
@@ -76,6 +79,7 @@ US34 - Large age difference: Jamie /Lanister/ is over 2xs as old as Cersei /Lani
 US39 - Upcoming Anniversary: 7 AUG 2005 for Manny /Delgado/ & Luna /Stabilo/
 US34 - Large age difference: Luna /Stabilo/ is over 2xs as old as Manny /Delgado/
 US30 - Luna /Stabilo/ (@I22@) and Manny /Delgado/ (@I9@) are living married people.
+US34 - Large age difference: Delia /Williams/ is over 2xs as old as Bran /Stark/
 US29 - Jamie /Dunfee/ (@I16@) is deceased.
 US29 - Delia /Williams/ (@I7@) is deceased.
 US29 - Jay /Pritch/ (@I6@) is deceased.
