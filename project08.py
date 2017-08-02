@@ -206,9 +206,9 @@ def marryDead(famID, famMom, famDad):
         ddDate = famDad.get("DEAT")
         try:
             if mdDate < mDate:
-                ERRORS.append("Error US06 - " + famMom.get("NAME") + " (" + famMom.get("INDI") + ") died before her divorce.")
+                ERRORS.append("Error US06: " + famMom.get("NAME") + " (" + famMom.get("INDI") + ") died before her divorce.")
             if ddDate < mDate:
-                ERRORS.append("Error US06 - " + famDad.get("NAME") + " (" + famDad.get("INDI") + ") died before his divorce.")
+                ERRORS.append("Error US06: " + famDad.get("NAME") + " (" + famDad.get("INDI") + ") died before his divorce.")
         except TypeError:
             pass
 
@@ -321,13 +321,15 @@ def siblingSpacing(ident):
 
 def marriageB4divorce(ident):
     if FAM.get(ident, {}).get("DIV"):
+
         div = FAM.get(ident, {}).get("DIV")
-        if FAM.get(ident, {}).get("MAR"):
-            mar = FAM.get(ident, {}).get("MAR")
+        if FAM.get(ident, {}).get("MARR"):
+            mar = FAM.get(ident, {}).get("MARR")
             div = datetime.strptime(div, "%d %b %Y")
             mar = datetime.strptime(mar, "%d %b %Y")
-            if((div - mar) < timedelta(days = 30)):
-                ERRORS.append("Error US04: Marriage before divorce")
+
+            if (div.year - mar.year - (1 if (div.month, div.day)<(mar.month, mar.day) else 0)) < 0:
+                ERRORS.append("Error US04: Marriage before divorce for " + FAM.get(ident, {}).get("FAM"))
 
 def noIncestAllowed(ident):
     if FAM.get(ident, {}).get("HUSB"):
@@ -335,7 +337,7 @@ def noIncestAllowed(ident):
         husbf = INDI.get(husb, {}).get("FAMS")
         if FAM.get(ident, {}).get("WIFE"):
             wife = FAM.get(ident, {}).get("WIFE")
-            wifef = INDI.get(wife, {}).get("FAMCS")
+            wifef = INDI.get(wife, {}).get("FAMS")
             if(husbf == wifef):
                 ERRORS.append("Error US18: Incest occuring: " + lookup_name(husb) + " & " + lookup_name(wife))
 
